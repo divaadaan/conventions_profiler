@@ -1,0 +1,23 @@
+hardware:
+  device: "auto"  # "auto" | "cuda:0" | "cpu"
+  batch_size: 16
+
+models:
+  spacy:
+    model: "en_core_web_trf"  # "en_core_web_trf" for GPU, "en_core_web_lg" for CPU fallback
+    add_pipes:
+      - "textdescriptives/dependency_distance"
+  languagetool:
+    server_port: 8081
+    language: "en-US"
+
+cache:
+  enabled: true
+  directory: "./cache"
+  format: "parquet"
+
+datasets:
+  asap_pp:
+    essays_path: "./data/raw/asap_pp/essays.csv"
+    annotations_path: "./data/raw/asap_pp/annotations.csv"
+    prompts: [1, 2, 7, 8]  # Only prompts with conventions-specific labels

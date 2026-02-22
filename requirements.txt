@@ -1,0 +1,10 @@
+spacy>=3.7,<4.0
+textdescriptives>=2.8
+language-tool-python>=2.7
+pyspellchecker>=0.7
+pandas>=2.1
+pyarrow>=14.0
+numpy>=1.26
+pyyaml>=6.0
+pydantic>=2.5
+tqdm>=4.66
