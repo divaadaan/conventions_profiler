@@ -18,6 +18,4 @@ cache:
 
 datasets:
   asap_pp:
-    essays_path: "./data/raw/asap_pp/essays.csv"
-    annotations_path: "./data/raw/asap_pp/annotations.csv"
-    prompts: [1, 2, 7, 8]  # Only prompts with conventions-specific labels
+    path: "./src/conventions_profiler/data/processed/asap_pp_conventions.csv"

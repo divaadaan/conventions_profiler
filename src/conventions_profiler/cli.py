@@ -34,7 +34,7 @@ def essays_to_dataframe(essays) -> pd.DataFrame:
             "essay_id": essay.essay_id,
             "prompt_id": essay.prompt_id,
             "conventions_score": essay.conventions_score,
-            "conventions_z": essay.conventions_z,
+            "conventions_score_norm": essay.conventions_score_norm,
             "word_count": essay.word_count,
         }
         row.update(essay.features)
@@ -67,11 +67,7 @@ def main():
 
     # Load data
     logger.info("Loading ASAP++ data...")
-    essays = load_asap_pp(
-        essays_path=config.datasets.asap_pp.essays_path,
-        annotations_path=config.datasets.asap_pp.annotations_path,
-        prompts=config.datasets.asap_pp.prompts,
-    )
+    essays = load_asap_pp(path=config.datasets.asap_pp.path)
     logger.info(f"Loaded {len(essays)} essays")
 
     # Set up pipeline
@@ -108,7 +104,7 @@ def main():
     print(f"Output: {output_path}")
     print("\nFeature summary:")
     feature_cols = [c for c in df.columns if c not in
-                    {"essay_id", "prompt_id", "conventions_score", "conventions_z", "word_count"}]
+                    {"essay_id", "prompt_id", "conventions_score", "conventions_score_norm", "word_count"}]
     print(df[feature_cols].describe().T[["mean", "std", "min", "max"]].to_string())
 
 

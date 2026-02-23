@@ -18,7 +18,7 @@ class Essay:
         text: Raw essay text.
         prompt_id: ASAP prompt number.
         conventions_score: Ground truth conventions score (raw scale per prompt).
-        conventions_z: Z-scored conventions score for cross-prompt analysis.
+        conventions_score_norm: Normalized conventions score (0-1) for cross-prompt analysis.
         pass_results: Dict of intermediate results keyed by pass name.
             Populated by each pass during processing.
         features: Final extracted feature dict. Populated after all passes complete.
@@ -27,7 +27,7 @@ class Essay:
     text: str
     prompt_id: int
     conventions_score: float | None = None
-    conventions_z: float | None = None
+    conventions_score_norm: float | None = None
     pass_results: dict[str, Any] = field(default_factory=dict)
     features: dict[str, float | int] = field(default_factory=dict)
 

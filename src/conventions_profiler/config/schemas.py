@@ -52,9 +52,7 @@ class CacheConfig(BaseModel):
 
 
 class AsapPPConfig(BaseModel):
-    essays_path: str = "./data/raw/asap_pp/essays.csv"
-    annotations_path: str = "./data/raw/asap_pp/annotations.csv"
-    prompts: list[int] = Field(default_factory=lambda: [1, 2, 7, 8])
+    path: str = "./src/conventions_profiler/data/processed/asap_pp_conventions.csv"
 
 
 class DatasetsConfig(BaseModel):
