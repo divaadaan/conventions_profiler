@@ -28,11 +28,11 @@ logger = logging.getLogger(__name__)
 def _match_to_dict(match, essay_text: str) -> dict:
     """Convert a LanguageTool Match object to a serializable dict."""
     offset = match.offset
-    length = match.errorLength
+    length = match.error_length
     matched_text = essay_text[offset:offset + length] if offset + length <= len(essay_text) else ""
 
     return {
-        "rule_id": match.ruleId,
+        "rule_id": match.rule_id,
         "category": match.category,
         "message": match.message,
         "offset": offset,

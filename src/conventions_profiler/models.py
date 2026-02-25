@@ -33,4 +33,7 @@ class Essay:
 
     @property
     def word_count(self) -> int:
+        spacy_total = self.pass_results.get("spacy", {}).get("total_words")
+        if spacy_total is not None:
+            return spacy_total
         return len(self.text.split())

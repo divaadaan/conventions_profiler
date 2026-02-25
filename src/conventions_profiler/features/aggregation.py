@@ -103,23 +103,17 @@ def _distribute_errors_to_sentences(
 ) -> list[float]:
     """Map LanguageTool errors to sentences by character offset.
 
+    Uses start_char/end_char stored by the spaCy pass for exact positioning.
     Returns a list of error counts, one per sentence.
     """
     if not sentences:
         return []
 
-    # Compute approximate character offsets for each sentence
-    # by finding sentence text positions in the essay
-    sent_ranges = []
-    search_start = 0
-    for sent in sentences:
-        sent_text = sent.get("text", "")
-        idx = essay_text.find(sent_text, search_start)
-        if idx == -1:
-            # Fallback: approximate position
-            idx = search_start
-        sent_ranges.append((idx, idx + len(sent_text)))
-        search_start = idx + len(sent_text)
+    # Build ranges from stored spaCy char offsets
+    sent_ranges = [
+        (sent["start_char"], sent["end_char"])
+        for sent in sentences
+    ]
 
     # Count errors per sentence
     errors_per_sent = [0.0] * len(sentences)

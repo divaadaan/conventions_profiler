@@ -4,6 +4,7 @@ Main entry point for the conventions profiler pipeline.
 Usage:
     python -m conventions_profiler.main --config config/default.yaml
     python -m conventions_profiler.main --config config/default.yaml --force
+    python -m conventions_profiler.main --limit 50
 """
 
 import argparse
@@ -15,7 +16,6 @@ import pandas as pd
 
 from conventions_profiler.config.schemas import load_config
 from conventions_profiler.data.loaders.asap_pp import load_asap_pp
-from conventions_profiler.pipeline.cache import PipelineCache
 from conventions_profiler.pipeline.orchestrator import Orchestrator
 
 logging.basicConfig(
@@ -50,7 +50,11 @@ def main():
     )
     parser.add_argument(
         "--force", action="store_true",
-        help="Force re-extraction, ignoring cache",
+        help="Force re-extraction, ignoring checkpoints",
+    )
+    parser.add_argument(
+        "--limit", type=int, default=None,
+        help="Process only the first N essays",
     )
     parser.add_argument(
         "--output", type=str, default=None,
@@ -68,14 +72,14 @@ def main():
     # Load data
     logger.info("Loading ASAP++ data...")
     essays = load_asap_pp(path=config.datasets.asap_pp.path)
+
+    if args.limit is not None:
+        essays = essays[:args.limit]
     logger.info(f"Loaded {len(essays)} essays")
 
-    # Set up pipeline
-    cache = PipelineCache(
-        cache_dir=config.cache.cache_path,
-        enabled=config.cache.enabled,
-    )
-    orchestrator = Orchestrator(config=config_dict, cache=cache)
+    # Set up pipeline with checkpoint directory
+    checkpoint_dir = config.cache.cache_path / "checkpoints"
+    orchestrator = Orchestrator(config=config_dict, checkpoint_dir=checkpoint_dir)
 
     # Run pipeline
     essays = orchestrator.run(essays, force=args.force)

@@ -3,6 +3,7 @@ from pathlib import Path
 
 import pandas as pd
 
+from conventions_profiler.data.deanonymize import deanonymize
 from conventions_profiler.models import Essay
 
 logger = logging.getLogger(__name__)
@@ -42,7 +43,7 @@ def load_asap_pp(path: str | Path) -> list[Essay]:
     for _, row in df.iterrows():
         essays.append(Essay(
             essay_id=str(row["essay_id"]),
-            text=str(row["essay"]),
+            text=deanonymize(str(row["essay"])),
             prompt_id=int(row["prompt_id"]),
             conventions_score=float(row["conventions_score"]),
             conventions_score_norm=float(row["conventions_score_norm"]),

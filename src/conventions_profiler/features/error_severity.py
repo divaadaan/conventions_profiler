@@ -16,23 +16,28 @@ from conventions_profiler.models import Essay
 # Categories not listed here default to MEDIUM.
 
 GLOBAL_CATEGORIES = {
-    # Structural errors that block sentence-level comprehension
-    "SENTENCE_FRAGMENT",
-    "WORD_ORDER",
-    "MISSING_VERB",
+    # LanguageTool categories containing comprehension-blocking errors
+    "CONFUSED_WORDS",  # Real-word errors that change meaning (there/their, to/too)
 }
 
 GLOBAL_RULES = {
     # Specific rule IDs that are comprehension-blocking even if their
-    # category is not globally severe
-    "SENTENCE_FRAGMENT",
-    "MISSING_VERB_BEFORE",
-    "MISSING_VERB_AFTER",
-    "WORD_ORDER_ENGLISH",
-    "CONFUSION_RULE",  # Real-word errors that change meaning (there/their)
-    "COMMA_SPLICE",
-    "RUN_ON_SENTENCE",
-    "FUSED_SENTENCE",
+    # category is not globally severe.
+    # Real-word confusions (category CONFUSED_WORDS covers most, but these
+    # also appear under GRAMMAR):
+    "THEIR_IS", "THERE_THEIR", "YOUR_YOU_2", "YOUR_YOU_RE", "YOUR",
+    "TO_TOO", "IT_IS", "IT_IS_2", "ITS_TO_IT_S",
+    "AFFECT_EFFECT", "LOOSE_LOSE", "ADVICE_ADVISE",
+    "LESS_MORE_THEN", "RATHER_THEN", "THOUGH_THOUGHT",
+    # Sentence boundary / structural errors:
+    "COMMA_COMPOUND_SENTENCE", "COMMA_COMPOUND_SENTENCE_2",
+    # Agreement errors that change meaning:
+    "AGREEMENT_SENT_START", "SINGULAR_AGREEMENT_SENT_START",
+    "HE_VERB_AGR", "PEOPLE_VBZ",
+    # Missing structural elements:
+    "MISSING_TO_BEFORE_A_VERB", "PRP_PAST_PART",
+    "MD_BASEFORM", "MD_BE_NON_VBP",
+    "THE_CC", "THE_ARE",
     "DOUBLE_NEGATIVE",
 }
 
@@ -43,14 +48,21 @@ LOCAL_CATEGORIES = {
     "COMPOUNDING",
     "REDUNDANCY",
     "STYLE",
+    "TYPOGRAPHY",
+    "REPETITIONS_STYLE",
 }
 
 LOCAL_RULES = {
     "UPPERCASE_SENTENCE_START",
     "EN_UNPAIRED_BRACKETS",
+    "EN_UNPAIRED_QUOTES",
     "WHITESPACE_RULE",
-    "EN_QUOTES",
+    "SENTENCE_WHITESPACE",
+    "SPACE_BEFORE_PARENTHESIS",
     "COMMA_PARENTHESIS_WHITESPACE",
+    "DOUBLE_PUNCTUATION",
+    "MORFOLOGIK_RULE_EN_US",  # Simple spelling errors (recoverable from context)
+    "EN_CONTRACTION_SPELLING",
 }
 
 # Default severity weights

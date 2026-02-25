@@ -15,10 +15,17 @@ def _safe_mean(values: list[float], default: float = 0.0) -> float:
     return statistics.mean(values) if values else default
 
 
+def _count_lt_matches(matches: list[dict], rule_ids: set[str]) -> int:
+    """Count LanguageTool matches for a set of rule IDs."""
+    return sum(1 for m in matches if m.get("rule_id") in rule_ids)
+
+
 def compute_punctuation_features(essay: Essay) -> dict[str, float]:
-    """Extract punctuation features from spaCy pass results."""
+    """Extract punctuation features from spaCy and LanguageTool pass results."""
     spacy_data = essay.pass_results.get("spacy", {})
+    lt_data = essay.pass_results.get("languagetool", {})
     sentences = spacy_data.get("sentences", [])
+    lt_matches = lt_data.get("matches", [])
     total_tokens = spacy_data.get("total_tokens", 1)
 
     if not sentences:
@@ -37,20 +44,10 @@ def compute_punctuation_features(essay: Essay) -> dict[str, float]:
         total_punct / total_clauses if total_clauses > 0 else 0.0
     )
 
-    # --- Comma splice candidates ---
-    # Heuristic: sentences with multiple clause-bearing verb groups but
-    # only commas (no conjunctions or semicolons) separating them.
-    # This is an approximation — full detection would need constituency parsing.
-    comma_splice_candidates = 0
-    for sent in sentences:
-        if sent["clauses_with_subjects"] > 1:
-            # Check if there are commas but the sentence has multiple independent
-            # clause structures without conjunctions
-            pos_seq = sent.get("pos_sequence", [])
-            has_conj = "CCONJ" in pos_seq or "SCONJ" in pos_seq
-            has_comma = "PUNCT" in pos_seq  # Rough — any punct
-            if has_comma and not has_conj and sent["clauses_with_subjects"] >= 2:
-                comma_splice_candidates += 1
+    # --- Comma splice / run-on detection via LanguageTool ---
+    comma_splice_candidates = _count_lt_matches(
+        lt_matches, {"COMMA_COMPOUND_SENTENCE", "COMMA_COMPOUND_SENTENCE_2"}
+    )
 
     features["punct_comma_splice_candidates"] = float(comma_splice_candidates)
     features["punct_comma_splice_ratio"] = (

@@ -93,6 +93,23 @@ def compute_dependency_features(essay: Essay) -> dict[str, float]:
     features["dep_multi_root_count"] = float(multi_root_count)
     features["dep_multi_root_ratio"] = multi_root_count / len(sentences) if sentences else 0.0
 
+    # --- LanguageTool-based fragment / run-on counts ---
+    lt_data = essay.pass_results.get("languagetool", {})
+    lt_matches = lt_data.get("matches", [])
+
+    fragment_rules = {
+        "MISSING_TO_BEFORE_A_VERB", "PRP_PAST_PART", "MD_BASEFORM",
+        "THE_CC", "DT_JJ_NO_NOUN", "A_INFINITIVE",
+    }
+    run_on_rules = {"COMMA_COMPOUND_SENTENCE", "COMMA_COMPOUND_SENTENCE_2"}
+
+    features["dep_lt_fragment_count"] = float(
+        sum(1 for m in lt_matches if m.get("rule_id") in fragment_rules)
+    )
+    features["dep_lt_run_on_count"] = float(
+        sum(1 for m in lt_matches if m.get("rule_id") in run_on_rules)
+    )
+
     return features
 
 
@@ -107,5 +124,6 @@ def _empty_features() -> dict[str, float]:
         "dep_tree_depth_mean", "dep_tree_depth_max", "dep_tree_depth_ratio_mean",
         "dep_fragment_count", "dep_fragment_ratio",
         "dep_multi_root_count", "dep_multi_root_ratio",
+        "dep_lt_fragment_count", "dep_lt_run_on_count",
     ]
     return {k: 0.0 for k in keys}

@@ -5,8 +5,6 @@ hardware:
 models:
   spacy:
     model: "en_core_web_trf"  # "en_core_web_trf" for GPU, "en_core_web_lg" for CPU fallback
-    add_pipes:
-      - "textdescriptives/dependency_distance"
   languagetool:
     server_port: 8081
     language: "en-US"

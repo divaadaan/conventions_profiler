@@ -1,13 +1,14 @@
 """
 Pipeline orchestrator.
 
-Runs passes in sequence, manages caching, and coordinates feature extraction.
+Runs passes in sequence, manages checkpointing, and coordinates feature extraction.
 Handles both single-GPU and CPU execution. Multi-GPU parallelism is deferred
 to an extension module.
 """
 
 import logging
 import time
+from pathlib import Path
 
 from tqdm import tqdm
 
@@ -21,7 +22,7 @@ from conventions_profiler.features.syntactic_complexity import compute_syntactic
 from conventions_profiler.passes.base import BasePass
 from conventions_profiler.passes.languagetool_pass import LanguageToolPass
 from conventions_profiler.passes.spacy_pass import SpacyPass
-from conventions_profiler.pipeline.cache import PipelineCache
+from conventions_profiler.pipeline.checkpoint import save_checkpoint, load_checkpoint
 
 logger = logging.getLogger(__name__)
 
@@ -38,14 +39,11 @@ FEATURE_MODULES = [
 
 
 class Orchestrator:
-    """Runs the full extraction pipeline: passes → features → cache."""
+    """Runs the full extraction pipeline: passes → features."""
 
-    def __init__(self, config: dict, cache: PipelineCache | None = None):
+    def __init__(self, config: dict, checkpoint_dir: Path | None = None):
         self.config = config
-        self.cache = cache or PipelineCache(
-            cache_dir=config.get("cache", {}).get("directory", "./cache"),
-            enabled=config.get("cache", {}).get("enabled", True),
-        )
+        self.checkpoint_dir = checkpoint_dir
 
     def _get_passes(self) -> list[BasePass]:
         """Instantiate passes in execution order."""
@@ -62,23 +60,16 @@ class Orchestrator:
         essays
             List of Essay objects to process.
         force
-            If True, ignore cached results and re-run all passes.
+            If True, ignore checkpoints and re-run all passes.
         """
         for pass_instance in self._get_passes():
             pass_name = pass_instance.name
 
-            # Check cache
-            if not force and self.cache.has_pass_results(pass_name):
-                logger.info(f"Pass '{pass_name}': loading from cache")
-                cached = self.cache.load_pass_results(pass_name)
-                for essay in essays:
-                    if essay.essay_id in cached:
-                        essay.pass_results[pass_name] = cached[essay.essay_id]
-                    else:
-                        logger.warning(
-                            f"Essay {essay.essay_id} not in cache for pass '{pass_name}'"
-                        )
-                continue
+            # Try loading checkpoint
+            if self.checkpoint_dir and not force:
+                if load_checkpoint(essays, pass_name, self.checkpoint_dir):
+                    logger.info(f"Skipping pass '{pass_name}' (checkpoint)")
+                    continue
 
             # Run pass
             logger.info(f"Pass '{pass_name}': processing {len(essays)} essays...")
@@ -107,15 +98,12 @@ class Orchestrator:
                 f"({eps:.1f} essays/sec)"
             )
 
-            # Cache results
-            cache_data = {
-                essay.essay_id: essay.pass_results.get(pass_name, {})
-                for essay in essays
-            }
-            self.cache.save_pass_results(pass_name, cache_data)
-
-            # Unload model to free resources
+            # Unload model to free resources before saving checkpoint
             pass_instance.unload_model()
+
+            # Save checkpoint
+            if self.checkpoint_dir:
+                save_checkpoint(essays, pass_name, self.checkpoint_dir)
 
     def compute_features(self, essays: list[Essay]) -> None:
         """Run all feature modules over essays with populated pass_results.
@@ -143,7 +131,7 @@ class Orchestrator:
         essays
             List of Essay objects with text populated.
         force
-            If True, re-run all passes ignoring cache.
+            If True, re-run all passes ignoring checkpoints.
 
         Returns
         -------

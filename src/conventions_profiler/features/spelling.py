@@ -10,8 +10,6 @@ are more damaging to comprehension than function-word misspellings because
 content words carry the semantic payload of the sentence.
 """
 
-import re
-
 from spellchecker import SpellChecker
 
 from conventions_profiler.models import Essay
@@ -33,37 +31,21 @@ def _extract_words_with_pos(essay: Essay) -> list[dict]:
     """Extract words with their POS tags from spaCy pass results.
 
     Returns a list of dicts with 'word' (lowercased), 'pos', and 'original'.
-    Filters to alphabetic tokens of sufficient length.
+    Filters to alphabetic tokens of sufficient length using the token records
+    stored by the spaCy pass, avoiding misalignment from re-tokenization.
     """
     spacy_data = essay.pass_results.get("spacy", {})
     sentences = spacy_data.get("sentences", [])
 
-    # We need the raw text tokens — reconstruct from essay text using
-    # POS sequences from spaCy as a guide
     words = []
-    # Simple tokenization aligned with spaCy's output
-    raw_tokens = re.findall(r"[a-zA-Z]+", essay.text)
-
-    # Get all POS tags in order
-    all_pos = []
     for sent in sentences:
-        all_pos.extend(sent.get("pos_sequence", []))
-
-    # Align raw alphabetic tokens with POS tags
-    # This is approximate — spaCy tokenizes differently than regex
-    pos_idx = 0
-    for token in raw_tokens:
-        if len(token) < MIN_WORD_LENGTH:
-            pos_idx += 1
-            continue
-
-        pos = all_pos[pos_idx] if pos_idx < len(all_pos) else "X"
-        words.append({
-            "word": token.lower(),
-            "original": token,
-            "pos": pos,
-        })
-        pos_idx += 1
+        for tok in sent.get("tokens", []):
+            if tok["is_alpha"] and len(tok["lower"]) >= MIN_WORD_LENGTH:
+                words.append({
+                    "word": tok["lower"],
+                    "original": tok["text"],
+                    "pos": tok["pos"],
+                })
 
     return words
 
@@ -86,12 +68,11 @@ def compute_spelling_features(essay: Essay) -> dict[str, float]:
     for w in words_with_pos:
         if w["word"] in unknown:
             correction = _spell.correction(w["word"])
-            edit_dist = _spell.edit_distance_1(w["word"])
             misspellings.append({
                 "word": w["word"],
                 "pos": w["pos"],
                 "correction": correction,
-                "has_close_match": len(edit_dist) > 0,
+                "has_close_match": correction is not None and correction != w["word"],
             })
 
     total_words = len(words_with_pos)

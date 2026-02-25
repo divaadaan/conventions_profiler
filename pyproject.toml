@@ -9,7 +9,6 @@ description = "Linguistic feature extraction pipeline for conventions scoring in
 requires-python = ">=3.12"
 dependencies = [
     "spacy>=3.7,<4.0",
-    "textdescriptives>=2.8",
     "language-tool-python>=2.7",
     "pyspellchecker>=0.7",
     "pandas>=2.1",

@@ -3,16 +3,11 @@ SpaCy processing pass.
 
 Runs a single nlp() call per essay and stores the parsed Doc plus
 pre-computed intermediate structures that feature modules need.
-Optionally adds textdescriptives pipes for dependency distance metrics.
 
 Intermediate results stored in essay.pass_results["spacy"]:
-    doc: spacy.tokens.Doc
-        The full parsed document.
     sentences: list[dict]
         Per-sentence intermediate data including dep triples, tree depth,
-        POS sequences, and textdescriptives metrics if available.
-    doc_metrics: dict
-        Document-level metrics from textdescriptives (if available).
+        POS sequences, and MDD metrics.
 """
 
 import logging
@@ -112,8 +107,14 @@ def _compute_sentence_data(sent) -> dict[str, Any]:
 
     return {
         "text": sent.text,
+        "start_char": sent.start_char,
+        "end_char": sent.end_char,
         "word_count": len([t for t in tokens if not t.is_punct and not t.is_space]),
         "token_count": len(tokens),
+        "tokens": [
+            {"text": t.text, "lower": t.lower_, "pos": t.pos_, "is_alpha": t.is_alpha}
+            for t in tokens
+        ],
         "mdd": mdd,
         "adjacent_dep_proportion": adjacent_prop,
         "max_arc_length": max_arc_length,
@@ -136,7 +137,6 @@ class SpacyPass(BasePass):
     def __init__(self, config: dict):
         super().__init__(config)
         self.nlp = None
-        self._has_textdescriptives = False
 
     @property
     def name(self) -> str:
@@ -148,19 +148,6 @@ class SpacyPass(BasePass):
         )
         logger.info(f"Loading spaCy model: {model_name}")
         self.nlp = spacy.load(model_name)
-
-        # Add textdescriptives pipes if configured
-        add_pipes = self.config.get("models", {}).get("spacy", {}).get("add_pipes", [])
-        for pipe_name in add_pipes:
-            try:
-                if pipe_name not in self.nlp.pipe_names:
-                    self.nlp.add_pipe(pipe_name)
-                    logger.info(f"Added pipe: {pipe_name}")
-                    if "dependency_distance" in pipe_name:
-                        self._has_textdescriptives = True
-            except Exception as e:
-                logger.warning(f"Could not add pipe '{pipe_name}': {e}")
-
         logger.info(f"spaCy pipeline: {self.nlp.pipe_names}")
 
     def process_essay(self, essay: Essay) -> None:
@@ -172,19 +159,8 @@ class SpacyPass(BasePass):
         # Pre-compute per-sentence intermediate data
         sentences = [_compute_sentence_data(sent) for sent in doc.sents]
 
-        # Extract textdescriptives doc-level metrics if available
-        doc_metrics = {}
-        if self._has_textdescriptives:
-            try:
-                # textdescriptives stores metrics as doc extensions
-                if doc.has_extension("dependency_distance"):
-                    doc_metrics["td_dependency_distance"] = doc._.dependency_distance
-            except Exception as e:
-                logger.debug(f"Could not extract textdescriptives metrics: {e}")
-
         essay.pass_results[self.name] = {
             "sentences": sentences,
-            "doc_metrics": doc_metrics,
             "num_sentences": len(sentences),
             "total_words": sum(s["word_count"] for s in sentences),
             "total_tokens": sum(s["token_count"] for s in sentences),
@@ -200,17 +176,9 @@ class SpacyPass(BasePass):
 
         for essay, doc in zip(essays, self.nlp.pipe(texts, batch_size=batch_size)):
             sentences = [_compute_sentence_data(sent) for sent in doc.sents]
-            doc_metrics = {}
-            if self._has_textdescriptives:
-                try:
-                    if doc.has_extension("dependency_distance"):
-                        doc_metrics["td_dependency_distance"] = doc._.dependency_distance
-                except Exception:
-                    pass
 
             essay.pass_results[self.name] = {
                 "sentences": sentences,
-                "doc_metrics": doc_metrics,
                 "num_sentences": len(sentences),
                 "total_words": sum(s["word_count"] for s in sentences),
                 "total_tokens": sum(s["token_count"] for s in sentences),

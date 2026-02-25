@@ -26,7 +26,6 @@ class HardwareConfig(BaseModel):
 
 class SpacyModelConfig(BaseModel):
     model: str = "en_core_web_trf"
-    add_pipes: list[str] = Field(default_factory=lambda: ["textdescriptives/dependency_distance"])
 
 
 class LanguageToolConfig(BaseModel):
