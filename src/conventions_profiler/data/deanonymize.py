@@ -1,21 +1,6 @@
-"""Replace ASAP anonymization tokens with plausible English substitutions.
-
-The ASAP dataset replaces named entities with @TYPE<N> tokens (e.g.,
-@PERSON1, @LOCATION2). These cause false positives in LanguageTool,
-incorrect POS tags in spaCy, and spurious edits in GEC models.
-
-This module replaces true NER types with static, syntactically plausible
-words. @CAPS tokens are left unchanged — they represent the student's
-actual capitalization behavior and are relevant to conventions scoring.
-
-Token numbering is per-essay, so @PERSON1 in one essay is a different
-person than @PERSON1 in another. The replacement pools are indexed by
-the token number within each essay.
-"""
+"""Replace ASAP anonymization tokens with plausible English substitutions."""
 
 import re
-
-# Static replacement pools, indexed by token number (1-based).
 
 PERSON = [
     "James", "Sarah", "David", "Emily", "Michael", "Rachel", "Thomas",
@@ -77,12 +62,7 @@ _TOKEN_RE = re.compile(r"@([A-Z]+?)(\d+)")
 
 
 def deanonymize(text: str) -> str:
-    """Replace ASAP anonymization tokens with plausible substitutions.
-
-    - True NER types (@PERSON, @LOCATION, etc.) are replaced from static pools.
-    - @MONTH1 is always replaced with "May" (modal verb, not the month).
-    - @CAPS tokens are left unchanged.
-    """
+    """Replace ASAP anonymization tokens with plausible substitutions."""
     def _replace(match: re.Match) -> str:
         token_type = match.group(1)
         token_index = int(match.group(2))
@@ -91,11 +71,11 @@ def deanonymize(text: str) -> str:
             return "May"
 
         if token_type == "CAPS":
-            return match.group(0)  # leave unchanged
+            return match.group(0)
 
         pool = _POOLS.get(token_type)
         if pool is None:
-            return match.group(0)  # unknown type, leave unchanged
+            return match.group(0)  # unknown leave unchanged
 
         # 1-based index into pool, wrapping if index exceeds pool size
         return pool[(token_index - 1) % len(pool)]

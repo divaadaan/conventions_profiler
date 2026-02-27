@@ -1,19 +1,5 @@
-"""
-LanguageTool processing pass.
-
-Runs essays through a local LanguageTool server for grammar, spelling, and
-mechanics error detection. Stores raw match objects with their rule categories
-for downstream severity classification.
-
-Intermediate results stored in essay.pass_results["languagetool"]:
-    matches: list[dict]
-        Each match contains: rule_id, category, message, offset, length,
-        context, replacements, and the matched text span.
-    match_count: int
-        Total number of matches.
-    categories: dict[str, int]
-        Count of matches per LanguageTool category.
-"""
+"""LanguageTool processing pass.
+Intermediate results stored in essay.pass_results["languagetool"]"""
 
 import logging
 
@@ -44,7 +30,7 @@ def _match_to_dict(match, essay_text: str) -> dict:
 
 
 class LanguageToolPass(BasePass):
-    """Process essays with LanguageTool for error detection and classification."""
+    """Process essays with LanguageTool"""
 
     def __init__(self, config: dict):
         super().__init__(config)

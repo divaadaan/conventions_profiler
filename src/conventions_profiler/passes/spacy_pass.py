@@ -1,14 +1,6 @@
-"""
-SpaCy processing pass.
-
-Runs a single nlp() call per essay and stores the parsed Doc plus
-pre-computed intermediate structures that feature modules need.
-
-Intermediate results stored in essay.pass_results["spacy"]:
-    sentences: list[dict]
-        Per-sentence intermediate data including dep triples, tree depth,
-        POS sequences, and MDD metrics.
-"""
+"""SpaCy processing pass.
+runs a nlp() call per essay and stores the parsed Doc.
+pre-computes intermediate structures that the feature modules use"""
 
 import logging
 from typing import Any
@@ -23,11 +15,7 @@ logger = logging.getLogger(__name__)
 
 
 def _compute_sentence_data(sent) -> dict[str, Any]:
-    """Extract intermediate data from a single spaCy Span (sentence).
-
-    This pre-computes everything the feature modules will need so they
-    don't have to traverse the parse tree themselves.
-    """
+    """Extract intermediate data from a single spaCy parse. """
     tokens = list(sent)
     deps = []
     nsubj_count = 0
@@ -132,7 +120,7 @@ def _compute_sentence_data(sent) -> dict[str, Any]:
 
 
 class SpacyPass(BasePass):
-    """Process essays with spaCy, producing dependency parses and sentence-level data."""
+    """Process essays with spaCy"""
 
     def __init__(self, config: dict):
         super().__init__(config)
@@ -140,7 +128,7 @@ class SpacyPass(BasePass):
 
     @property
     def name(self) -> str:
-        return "spacy"
+        return "spaCy"
 
     def load_model(self) -> None:
         model_name = self.config.get("models", {}).get("spacy", {}).get(
@@ -152,11 +140,10 @@ class SpacyPass(BasePass):
 
     def process_essay(self, essay: Essay) -> None:
         if self.nlp is None:
-            raise RuntimeError("SpacyPass.load_model() must be called before processing.")
+            raise RuntimeError("spaCyPass.load_model() must be called before processing.")
 
         doc: Doc = self.nlp(essay.text)
 
-        # Pre-compute per-sentence intermediate data
         sentences = [_compute_sentence_data(sent) for sent in doc.sents]
 
         essay.pass_results[self.name] = {

@@ -1,11 +1,4 @@
-"""
-Document-level aggregation features.
-
-Computes summary statistics across sentence-level features and identifies
-patterns of error concentration. A document with errors concentrated in
-a few sentences may be more interpretable than one with errors distributed
-throughout — the reader can at least follow most of the text.
-"""
+"""Document-level aggregation features"""
 
 import statistics
 
@@ -21,11 +14,6 @@ def _safe_stdev(values: list[float], default: float = 0.0) -> float:
 
 
 def compute_aggregation_features(essay: Essay) -> dict[str, float]:
-    """Compute document-level aggregation features from pass results.
-
-    These features capture patterns that individual sentence-level features
-    miss: error concentration, worst-case windows, and document-wide consistency.
-    """
     spacy_data = essay.pass_results.get("spacy", {})
     lt_data = essay.pass_results.get("languagetool", {})
     sentences = spacy_data.get("sentences", [])
@@ -33,7 +21,7 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
 
     features: dict[str, float] = {}
 
-    # --- Document size features ---
+    # Document size features
     features["agg_num_sentences"] = float(len(sentences))
     features["agg_total_words"] = float(spacy_data.get("total_words", 0))
     features["agg_words_per_sentence"] = (
@@ -41,23 +29,21 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
         if features["agg_num_sentences"] > 0 else 0.0
     )
 
-    # --- Errors per sentence ---
-    # Distribute errors across sentences by offset
-    errors_per_sentence = _distribute_errors_to_sentences(sentences, matches, essay.text)
+    # Errors per sentence
+    errors_per_sentence = _distribute_errors_to_sentences(sentences, matches)
     features["agg_errors_per_sentence_mean"] = _safe_mean(errors_per_sentence)
     features["agg_errors_per_sentence_max"] = (
         max(errors_per_sentence) if errors_per_sentence else 0.0
     )
     features["agg_errors_per_sentence_stdev"] = _safe_stdev(errors_per_sentence)
 
-    # --- Proportion of error-free sentences ---
+    # Proportion of error-free sentences
     error_free = sum(1 for e in errors_per_sentence if e == 0)
     features["agg_error_free_sentence_ratio"] = (
         error_free / len(errors_per_sentence) if errors_per_sentence else 0.0
     )
 
-    # --- Worst-window analysis ---
-    # Sliding window of 3 sentences: find the window with highest error density
+    # Worst-window analysis
     if len(errors_per_sentence) >= 3:
         window_sums = [
             sum(errors_per_sentence[i:i+3])
@@ -73,15 +59,11 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
             [float(e) for e in errors_per_sentence]
         )
 
-    # --- MDD consistency ---
-    # High MDD variance may indicate inconsistent control of syntax
+    # MDD consistency
     sentence_mdds = [s.get("mdd", 0.0) for s in sentences]
     features["agg_mdd_consistency"] = _safe_stdev(sentence_mdds)
 
-    # --- Error concentration index ---
-    # Gini-like measure: are errors spread evenly or concentrated?
-    # High concentration (few sentences with many errors) may be less damaging
-    # than uniform distribution (every sentence has errors)
+    # Error concentration index
     if errors_per_sentence and sum(errors_per_sentence) > 0:
         total = sum(errors_per_sentence)
         n = len(errors_per_sentence)
@@ -99,23 +81,18 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
 def _distribute_errors_to_sentences(
     sentences: list[dict],
     matches: list[dict],
-    essay_text: str,
 ) -> list[float]:
-    """Map LanguageTool errors to sentences by character offset.
-
-    Uses start_char/end_char stored by the spaCy pass for exact positioning.
-    Returns a list of error counts, one per sentence.
-    """
+    """Map LanguageTool errors to sentences by character offset
+        # Build ranges from stored spaCy char offsets, then count errors per sentence"""
     if not sentences:
         return []
 
-    # Build ranges from stored spaCy char offsets
+
     sent_ranges = [
         (sent["start_char"], sent["end_char"])
         for sent in sentences
     ]
 
-    # Count errors per sentence
     errors_per_sent = [0.0] * len(sentences)
     for match in matches:
         offset = match.get("offset", 0)

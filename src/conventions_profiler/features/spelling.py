@@ -1,14 +1,4 @@
-"""
-Spelling features distinguishing meaning-disrupting from cosmetic errors.
-
-Uses pyspellchecker for dictionary-based spell checking and edit distance
-computation. Leverages POS tags from the spaCy pass to classify misspellings
-by word type (content words vs. function words).
-
-Key distinction: content-word misspellings (nouns, verbs, adjectives, adverbs)
-are more damaging to comprehension than function-word misspellings because
-content words carry the semantic payload of the sentence.
-"""
+"""Spelling features distinguishing meaning-disrupting from cosmetic errors."""
 
 from spellchecker import SpellChecker
 
@@ -29,11 +19,7 @@ _spell = SpellChecker()
 
 def _extract_words_with_pos(essay: Essay) -> list[dict]:
     """Extract words with their POS tags from spaCy pass results.
-
-    Returns a list of dicts with 'word' (lowercased), 'pos', and 'original'.
-    Filters to alphabetic tokens of sufficient length using the token records
-    stored by the spaCy pass, avoiding misalignment from re-tokenization.
-    """
+    Return: a list of dicts with 'word' (lowercased), 'pos', and 'original'."""
     spacy_data = essay.pass_results.get("spacy", {})
     sentences = spacy_data.get("sentences", [])
 
@@ -78,13 +64,13 @@ def compute_spelling_features(essay: Essay) -> dict[str, float]:
     total_words = len(words_with_pos)
     misspelled_count = len(misspellings)
 
-    # --- Basic spelling counts ---
+    #Basic spelling counts
     features["spell_misspelled_count"] = float(misspelled_count)
     features["spell_misspelled_ratio"] = (
         misspelled_count / total_words if total_words > 0 else 0.0
     )
 
-    # --- Content word vs function word misspellings ---
+    #Content word vs function word misspellings
     content_misspellings = sum(1 for m in misspellings if m["pos"] in CONTENT_POS)
     function_misspellings = sum(1 for m in misspellings if m["pos"] in FUNCTION_POS)
 
@@ -96,14 +82,13 @@ def compute_spelling_features(essay: Essay) -> dict[str, float]:
         content_misspellings / misspelled_count if misspelled_count > 0 else 0.0
     )
 
-    # --- Edit distance features ---
-    # Words with close matches (edit distance 1) are more recoverable by readers
+    #Edit distance features
     close_match_count = sum(1 for m in misspellings if m["has_close_match"])
     features["spell_close_match_ratio"] = (
         close_match_count / misspelled_count if misspelled_count > 0 else 0.0
     )
 
-    # Words without close matches are harder to recover — more damaging
+    # Words without close matches are harder to recover
     far_misspellings = misspelled_count - close_match_count
     features["spell_far_misspelling_count"] = float(far_misspellings)
     features["spell_far_misspelling_ratio"] = (

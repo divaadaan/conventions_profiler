@@ -14,6 +14,11 @@ cache:
   directory: "./cache"
   format: "parquet"
 
-datasets:
-  asap_pp:
-    path: "./src/conventions_profiler/data/processed/asap_pp_conventions.csv"
+dataset:
+  path: "./src/conventions_profiler/data/YOUR-PROCESSED-DATA-PATH.csv"
+
+features:
+  #add specific override defaults here, ie
+  #dep_mdd_mean: false , or,
+  #spell_far_misspellings_count: true
+  overrides: {}

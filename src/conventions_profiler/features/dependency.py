@@ -1,19 +1,6 @@
-"""
-Dependency parse features measuring structural interpretability.
-
-All features are extracted from the spaCy pass results — no model access needed.
-
-Theoretical grounding:
-    - MDD: Gibson (2000) Dependency Locality Theory — processing cost scales
-      with dependency distance. Ouyang et al. (2022) validated MDD as the best
-      single proficiency discriminator.
-    - Tree depth: deeper trees require more working memory to process.
-    - Fragment/run-on detection: Burt & Kiparsky (1974) — missing structural
-      elements are global errors that block comprehension.
-"""
+"""Dependency parse features measuring structural interpretability, extracted from spacypass"""
 
 import statistics
-from typing import Any
 
 from conventions_profiler.models import Essay
 
@@ -40,13 +27,13 @@ def compute_dependency_features(essay: Essay) -> dict[str, float]:
 
     features: dict[str, float] = {}
 
-    # --- Mean Dependency Distance (MDD) ---
+    # Mean Dependency Distance (MDD)
     sentence_mdds = [s["mdd"] for s in sentences]
     features["dep_mdd_mean"] = _safe_mean(sentence_mdds)
     features["dep_mdd_stdev"] = _safe_stdev(sentence_mdds)
     features["dep_mdd_max"] = _safe_max(sentence_mdds)
 
-    # --- MDD by dependency type (aggregated across sentences) ---
+    # MDD by dependency type aggregated across sentences
     type_distances: dict[str, list[float]] = {}
     for sent in sentences:
         for dep_type, mdd_val in sent.get("mdd_by_type", {}).items():
@@ -57,16 +44,16 @@ def compute_dependency_features(essay: Essay) -> dict[str, float]:
         vals = type_distances.get(dep_type, [])
         features[f"dep_mdd_{dep_type}"] = _safe_mean(vals)
 
-    # --- Adjacent dependency proportion ---
+    # Adjacent dependency proportion
     adj_props = [s["adjacent_dep_proportion"] for s in sentences]
     features["dep_adjacent_prop_mean"] = _safe_mean(adj_props)
 
-    # --- Max arc length ---
+    # Max arc length
     max_arcs = [s["max_arc_length"] for s in sentences]
     features["dep_max_arc_mean"] = _safe_mean(max_arcs)
     features["dep_max_arc_max"] = _safe_max(max_arcs)
 
-    # --- Tree depth ---
+    # Tree depth
     depths = [s["tree_depth"] for s in sentences]
     features["dep_tree_depth_mean"] = _safe_mean(depths)
     features["dep_tree_depth_max"] = _safe_max(depths)
@@ -78,8 +65,7 @@ def compute_dependency_features(essay: Essay) -> dict[str, float]:
     ]
     features["dep_tree_depth_ratio_mean"] = _safe_mean(depth_ratios)
 
-    # --- Fragment detection (missing nsubj) ---
-    # Sentences with a verb ROOT but no nominal subject = likely fragments
+    # Fragment detection
     fragment_count = 0
     for sent in sentences:
         if sent["has_verb_root"] and sent["nsubj_count"] == 0:
@@ -87,13 +73,7 @@ def compute_dependency_features(essay: Essay) -> dict[str, float]:
     features["dep_fragment_count"] = float(fragment_count)
     features["dep_fragment_ratio"] = fragment_count / len(sentences) if sentences else 0.0
 
-    # --- Run-on / fused sentence detection ---
-    # Sentences with multiple ROOT-like nodes suggest fused independent clauses
-    multi_root_count = sum(1 for s in sentences if s["root_count"] > 1)
-    features["dep_multi_root_count"] = float(multi_root_count)
-    features["dep_multi_root_ratio"] = multi_root_count / len(sentences) if sentences else 0.0
-
-    # --- LanguageTool-based fragment / run-on counts ---
+    # LanguageTool-based fragment and run-on counts
     lt_data = essay.pass_results.get("languagetool", {})
     lt_matches = lt_data.get("matches", [])
 

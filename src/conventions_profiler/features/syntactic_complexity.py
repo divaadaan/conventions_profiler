@@ -1,14 +1,4 @@
-"""
-Syntactic complexity features distinguishing sophistication from confusion.
-
-Grounded in TAASSC (Kyle, 2016) and L2SCA (Lu, 2010) approaches, adapted
-to work from spaCy parse output without requiring those tools directly.
-
-Key insight: sophisticated writing shows high phrasal elaboration with
-well-formed clause structure. Error-driven long sentences show high word
-count with low phrasal elaboration — the length comes from missing
-boundaries, not from sophisticated embedding.
-"""
+"""Syntactic complexity features"""
 
 import statistics
 
@@ -33,20 +23,18 @@ def compute_syntactic_complexity_features(essay: Essay) -> dict[str, float]:
 
     features: dict[str, float] = {}
 
-    # --- Sentence length ---
+    # Sentence length
     word_counts = [s["word_count"] for s in sentences]
     features["syn_sentence_length_mean"] = _safe_mean(word_counts)
     features["syn_sentence_length_stdev"] = _safe_stdev(word_counts)
     features["syn_sentence_length_max"] = max(word_counts) if word_counts else 0.0
 
-    # --- Clauses per sentence ---
-    # Approximated by verb groups with subjects
+    # clauses per sentence
     clauses_per_sent = [float(s["clauses_with_subjects"]) for s in sentences]
     features["syn_clauses_per_sentence_mean"] = _safe_mean(clauses_per_sent)
     features["syn_clauses_per_sentence_max"] = max(clauses_per_sent) if clauses_per_sent else 0.0
 
-    # --- Phrasal elaboration ---
-    # Mean dependents per noun phrase — measures how much nouns are modified
+    # Phrasal elaboration
     all_noun_dep_counts: list[float] = []
     for sent in sentences:
         all_noun_dep_counts.extend(sent.get("noun_dep_counts", []))
@@ -60,9 +48,7 @@ def compute_syntactic_complexity_features(essay: Essay) -> dict[str, float]:
     ]
     features["syn_phrasal_elaboration_stdev"] = _safe_stdev(sent_phrasal)
 
-    # --- Phrasal-to-clausal ratio ---
-    # High ratio = sophisticated embedding (length from elaboration)
-    # Low ratio on long sentences = missing boundaries (length from run-ons)
+    # Phrasal-to-clausal ratio
     phrasal_to_clausal = []
     for sent in sentences:
         wc = sent["word_count"]
@@ -76,9 +62,7 @@ def compute_syntactic_complexity_features(essay: Essay) -> dict[str, float]:
 
     features["syn_phrasal_clausal_ratio_mean"] = _safe_mean(phrasal_to_clausal)
 
-    # --- Long sentence analysis ---
-    # Sentences above the threshold that ALSO have low phrasal elaboration
-    # are likely run-ons, not sophisticated constructions
+    # long sentence analysis
     if len(word_counts) >= 2 and _safe_stdev(word_counts) > 0:
         mean_wc = _safe_mean(word_counts)
         std_wc = _safe_stdev(word_counts)
@@ -103,9 +87,7 @@ def compute_syntactic_complexity_features(essay: Essay) -> dict[str, float]:
         features["syn_long_low_elaboration_count"] = 0.0
         features["syn_long_high_elaboration_count"] = 0.0
 
-    # --- Sentence length variability ---
-    # Very low variability may indicate formulaic writing
-    # Very high variability may indicate inconsistent boundary detection
+    # Sentence length variability
     if len(word_counts) >= 2:
         features["syn_sentence_length_cv"] = (
             _safe_stdev(word_counts) / _safe_mean(word_counts)

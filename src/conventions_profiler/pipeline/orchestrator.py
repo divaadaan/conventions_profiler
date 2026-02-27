@@ -19,6 +19,7 @@ from conventions_profiler.features.error_severity import compute_error_severity_
 from conventions_profiler.features.punctuation import compute_punctuation_features
 from conventions_profiler.features.spelling import compute_spelling_features
 from conventions_profiler.features.syntactic_complexity import compute_syntactic_complexity_features
+from conventions_profiler.features.registry import get_enabled_features, get_required_modules
 from conventions_profiler.passes.base import BasePass
 from conventions_profiler.passes.languagetool_pass import LanguageToolPass
 from conventions_profiler.passes.spacy_pass import SpacyPass
@@ -44,6 +45,15 @@ class Orchestrator:
     def __init__(self, config: dict, checkpoint_dir: Path | None = None):
         self.config = config
         self.checkpoint_dir = checkpoint_dir
+
+        # Resolve enabled features from registry + config overrides
+        feature_overrides = config.get("features", {}).get("overrides", {})
+        self.enabled_features = get_enabled_features(feature_overrides)
+        self.required_modules = get_required_modules(self.enabled_features)
+        logger.info(
+            f"Enabled features: {len(self.enabled_features)} "
+            f"(modules: {sorted(self.required_modules)})"
+        )
 
     def _get_passes(self) -> list[BasePass]:
         """Instantiate passes in execution order."""
@@ -106,22 +116,35 @@ class Orchestrator:
                 save_checkpoint(essays, pass_name, self.checkpoint_dir)
 
     def compute_features(self, essays: list[Essay]) -> None:
-        """Run all feature modules over essays with populated pass_results.
+        """Run enabled feature modules and filter to enabled features.
 
         Features are stored in each essay.features dict.
         """
+        active_modules = [
+            (name, fn) for name, fn in FEATURE_MODULES
+            if name in self.required_modules
+        ]
+        skipped = [name for name, _ in FEATURE_MODULES if name not in self.required_modules]
+        if skipped:
+            logger.info(f"Skipping feature modules (no enabled features): {skipped}")
+
         logger.info(f"Computing features for {len(essays)} essays...")
 
         for essay in tqdm(essays, desc="Feature extraction", unit="essay"):
-            for module_name, compute_fn in FEATURE_MODULES:
+            all_features = {}
+            for module_name, compute_fn in active_modules:
                 try:
-                    features = compute_fn(essay)
-                    essay.features.update(features)
+                    all_features.update(compute_fn(essay))
                 except Exception as e:
                     logger.error(
                         f"Feature module '{module_name}' failed for "
                         f"essay {essay.essay_id}: {e}"
                     )
+            # Filter to only enabled features
+            essay.features = {
+                k: v for k, v in all_features.items()
+                if k in self.enabled_features
+            }
 
     def run(self, essays: list[Essay], force: bool = False) -> list[Essay]:
         """Execute the full pipeline: passes → features.

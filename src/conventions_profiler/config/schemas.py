@@ -49,20 +49,28 @@ class CacheConfig(BaseModel):
         path.mkdir(parents=True, exist_ok=True)
         return path
 
+class FeaturesConfig(BaseModel):
+    overrides: dict[str, bool] = Field(default_factory=dict)
 
-class AsapPPConfig(BaseModel):
-    path: str = "./src/conventions_profiler/data/processed/asap_pp_conventions.csv"
+
+class ColumnMapping(BaseModel):
+    essay_id: str = "essay_id"
+    text: str = "text"
+    prompt_id: str = "prompt_id"
+    score: str = "score"
 
 
-class DatasetsConfig(BaseModel):
-    asap_pp: AsapPPConfig = Field(default_factory=AsapPPConfig)
+class DatasetConfig(BaseModel):
+    path: str = "./src/conventions_profiler/data/YOUR-PROCESSED-DATA-PATH.csv"
+    columns: ColumnMapping = Field(default_factory=ColumnMapping)
 
 
 class PipelineConfig(BaseModel):
     hardware: HardwareConfig = Field(default_factory=HardwareConfig)
     models: ModelsConfig = Field(default_factory=ModelsConfig)
     cache: CacheConfig = Field(default_factory=CacheConfig)
-    datasets: DatasetsConfig = Field(default_factory=DatasetsConfig)
+    dataset: DatasetConfig = Field(default_factory=DatasetConfig)
+    features: FeaturesConfig = Field(default_factory=FeaturesConfig)
 
 
 def load_config(config_path: str | Path = "config/default.yaml") -> PipelineConfig:

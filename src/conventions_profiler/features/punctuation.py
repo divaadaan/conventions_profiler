@@ -1,10 +1,4 @@
-"""
-Punctuation features detecting sentence boundary failures.
-
-Focuses on structural punctuation errors that block comprehension:
-comma splices, run-on sentences, and missing boundaries. These are
-global errors in the Burt & Kiparsky (1974) framework.
-"""
+"""Punctuation features detecting sentence boundary failures."""
 
 import statistics
 
@@ -33,18 +27,17 @@ def compute_punctuation_features(essay: Essay) -> dict[str, float]:
 
     features: dict[str, float] = {}
 
-    # --- Punctuation density ---
+    # Punctuation density
     total_punct = sum(s["punct_count"] for s in sentences)
     features["punct_density"] = total_punct / total_tokens if total_tokens > 0 else 0.0
 
-    # --- Punctuation to clause ratio ---
-    # Expected: roughly one punctuation mark per clause boundary
+    # Punctuation to clause ratio
     total_clauses = sum(s["clauses_with_subjects"] for s in sentences)
     features["punct_to_clause_ratio"] = (
         total_punct / total_clauses if total_clauses > 0 else 0.0
     )
 
-    # --- Comma splice / run-on detection via LanguageTool ---
+    # Comma splice / run-on detection via LanguageTool
     comma_splice_candidates = _count_lt_matches(
         lt_matches, {"COMMA_COMPOUND_SENTENCE", "COMMA_COMPOUND_SENTENCE_2"}
     )
@@ -54,8 +47,7 @@ def compute_punctuation_features(essay: Essay) -> dict[str, float]:
         comma_splice_candidates / len(sentences) if sentences else 0.0
     )
 
-    # --- Sentence length outliers ---
-    # Very long sentences may indicate missing boundaries
+    # Sentence length outliers
     word_counts = [s["word_count"] for s in sentences]
     if len(word_counts) >= 2:
         mean_wc = statistics.mean(word_counts)
@@ -69,8 +61,7 @@ def compute_punctuation_features(essay: Essay) -> dict[str, float]:
         features["punct_length_outlier_count"] = 0.0
         features["punct_length_outlier_ratio"] = 0.0
 
-    # --- Low-punctuation long sentences ---
-    # Sentences that are long but have few punctuation marks relative to length
+    # Low-punctuation long sentences
     low_punct_long = 0
     for sent in sentences:
         if sent["word_count"] > 20:  # Reasonably long sentence
