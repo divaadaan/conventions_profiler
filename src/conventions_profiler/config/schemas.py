@@ -49,6 +49,11 @@ class CacheConfig(BaseModel):
         path.mkdir(parents=True, exist_ok=True)
         return path
 
+class ScoringConfig(BaseModel):
+    score_min: float = 0.0
+    score_max: float = 1.0
+    normalize: bool = False
+
 class FeaturesConfig(BaseModel):
     overrides: dict[str, bool] = Field(default_factory=dict)
 
@@ -71,10 +76,11 @@ class PipelineConfig(BaseModel):
     cache: CacheConfig = Field(default_factory=CacheConfig)
     dataset: DatasetConfig = Field(default_factory=DatasetConfig)
     features: FeaturesConfig = Field(default_factory=FeaturesConfig)
+    scoring: ScoringConfig = Field(default_factory=ScoringConfig)
 
 
 def load_config(config_path: str | Path = "config/default.yaml") -> PipelineConfig:
-    """Load and validate pipeline configuration from a YAML file."""
+    """Load pipeline configuration from YAML."""
     config_path = Path(config_path)
     if config_path.exists():
         with open(config_path) as f:

@@ -22,3 +22,8 @@ features:
   #dep_mdd_mean: false , or,
   #spell_far_misspellings_count: true
   overrides: {}
+
+scoring:
+  score_min: 0.0
+  score_max: 1.0
+  normalise: false

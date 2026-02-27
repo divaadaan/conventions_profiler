@@ -77,6 +77,12 @@ def main():
         essays = essays[:args.limit]
     logger.info(f"Loaded {len(essays)} essays")
 
+    if config.scoring.normalize:
+        low_score, high_score = config.scoring.score_min, config.scoring.score_max
+        for essay in essays:
+            if essay.score is not None:
+                essay.score = (essay.score - low_score) / (high_score - low_score)
+
     checkpoint_dir = config.cache.cache_path / "checkpoints"
     orchestrator = Orchestrator(config=config_dict, checkpoint_dir=checkpoint_dir)
 
