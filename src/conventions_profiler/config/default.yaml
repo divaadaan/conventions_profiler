@@ -7,15 +7,21 @@ models:
     model: "en_core_web_trf"  # "en_core_web_trf" for GPU, "en_core_web_lg" for CPU fallback
   languagetool:
     server_port: 8081
-    language: "en-US"
+    language: "en-CA"
 
 cache:
   enabled: true
   directory: "./cache"
   format: "parquet"
+  checkpoint_chunk_size: 500  # essays per checkpoint increment
 
 dataset:
   path: "./src/conventions_profiler/data/YOUR-PROCESSED-DATA-PATH.csv"
+  columns:
+    essay_id: "essay_id"
+    text: "text"
+    score: "score"
+    prompt_id: "prompt_id"
 
 features:
   #add specific override defaults here, ie

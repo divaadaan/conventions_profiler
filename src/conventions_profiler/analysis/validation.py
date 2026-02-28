@@ -135,7 +135,7 @@ def run_full_analysis(
 
 
 def cross_prompt_ranking(
-    prompt_results: dict[int, pd.DataFrame],
+    prompt_results: dict[int | str, pd.DataFrame],
     features: list[str],
 ) -> pd.DataFrame:
     """Rank features by cross-prompt consistency of Spearman rho."""

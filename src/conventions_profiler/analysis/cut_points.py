@@ -110,6 +110,9 @@ def compute_cut_points(
         }
         cut_rows.append(row)
 
+    if not cut_rows:
+        return pd.DataFrame(columns=["feature", "description", "direction", "module", "min_abs_rho", "mean_abs_rho"])
+
     result = pd.DataFrame(cut_rows).sort_values("min_abs_rho", ascending=False).reset_index(drop=True)
 
     # Exclude features with degenerate cut points

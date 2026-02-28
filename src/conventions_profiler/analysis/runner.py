@@ -20,6 +20,7 @@ def run_validation_pipeline(
     target: str = "score",
     prompts: list | None = None,
     corr_threshold: float = 0.85,
+    consistency_threshold: float = 0.75,
     discrete_scores: bool = False,
 ) -> dict:
     """Run full analysis: per-prompt validation, cross-prompt ranking,
@@ -56,7 +57,8 @@ def run_validation_pipeline(
     n_prompts = len(prompts)
 
     # Filter to consistent features
-    min_prompts = n_prompts - 1
+    import math
+    min_prompts = math.ceil(n_prompts * consistency_threshold)
     consistent_mask = (
         (ranking["n_significant"] >= min_prompts) & ranking["sign_consistent"]
     )

@@ -17,7 +17,7 @@ class Essay:
     """
     essay_id: str
     text: str
-    prompt_id: int
+    prompt_id: int | str
     score: float | None = None
     pass_results: dict[str, Any] = field(default_factory=dict)
     features: dict[str, float | int] = field(default_factory=dict)

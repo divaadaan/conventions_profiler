@@ -128,7 +128,7 @@ class SpacyPass(BasePass):
 
     @property
     def name(self) -> str:
-        return "spaCy"
+        return "spacy"
 
     def load_model(self) -> None:
         model_name = self.config.get("models", {}).get("spacy", {}).get(

@@ -42,6 +42,7 @@ class CacheConfig(BaseModel):
     enabled: bool = True
     directory: str = "./cache"
     format: str = "parquet"
+    checkpoint_chunk_size: int = 500
 
     @property
     def cache_path(self) -> Path:
@@ -82,8 +83,8 @@ class PipelineConfig(BaseModel):
 def load_config(config_path: str | Path = "config/default.yaml") -> PipelineConfig:
     """Load pipeline configuration from YAML."""
     config_path = Path(config_path)
-    if config_path.exists():
-        with open(config_path) as f:
-            raw = yaml.safe_load(f)
-        return PipelineConfig(**raw)
-    return PipelineConfig()
+    if not config_path.exists():
+        raise FileNotFoundError(f"Config file not found: {config_path}")
+    with open(config_path) as f:
+        raw = yaml.safe_load(f)
+    return PipelineConfig(**raw)

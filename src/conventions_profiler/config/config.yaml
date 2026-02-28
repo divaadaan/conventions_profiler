@@ -1,0 +1,35 @@
+hardware:
+  device: "auto"  # "auto" | "cuda:0" | "cpu"
+  batch_size: 16
+
+models:
+  spacy:
+    model: "en_core_web_trf"  # "en_core_web_trf" for GPU, "en_core_web_lg" for CPU fallback
+  languagetool:
+    server_port: 8081
+    language: "en-CA"
+
+cache:
+  enabled: true
+  directory: "./cache"
+  format: "parquet"
+  checkpoint_chunk_size: 500  # essays per checkpoint increment
+
+dataset:
+  path: "./src/conventions_profiler/data/raw/train.csv"
+  columns:
+    essay_id: "text_id"
+    text: "full_text"
+    score: "conventions"
+    prompt_id: "prompt"
+
+features:
+  #add specific override defaults here, ie
+  #dep_mdd_mean: false , or,
+  #spell_far_misspellings_count: true
+  overrides: {}
+
+scoring:
+  score_min: 1.0
+  score_max: 5.0
+  normalise: false

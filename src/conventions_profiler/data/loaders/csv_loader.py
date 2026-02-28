@@ -60,7 +60,7 @@ def load_dataset(
         essays.append(Essay(
             essay_id=str(row[col_map["essay_id"]]),
             text=str(row[col_map["text"]]),
-            prompt_id=int(row[prompt_col]) if has_prompt else 1,
+            prompt_id=row[prompt_col] if has_prompt else 1,
             score=float(row[col_map["score"]]),
         ))
 

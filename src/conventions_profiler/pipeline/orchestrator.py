@@ -1,10 +1,4 @@
-"""
-Pipeline orchestrator.
-
-Runs passes in sequence, manages checkpointing, and coordinates feature extraction.
-Handles both single-GPU and CPU execution. Multi-GPU parallelism is deferred
-to an extension module.
-"""
+"""Pipeline orchestrator."""
 
 import logging
 import time
@@ -23,12 +17,14 @@ from conventions_profiler.features.registry import get_enabled_features, get_req
 from conventions_profiler.passes.base import BasePass
 from conventions_profiler.passes.languagetool_pass import LanguageToolPass
 from conventions_profiler.passes.spacy_pass import SpacyPass
-from conventions_profiler.pipeline.checkpoint import save_checkpoint, load_checkpoint
+from conventions_profiler.pipeline.checkpoint import (
+    load_checkpoint,
+    load_partial_checkpoint,
+    save_checkpoint_incremental,
+)
 
 logger = logging.getLogger(__name__)
 
-# Feature modules to run after all passes complete.
-# Each takes an Essay (with populated pass_results) and returns a feature dict.
 FEATURE_MODULES = [
     ("dependency", compute_dependency_features),
     ("syntactic_complexity", compute_syntactic_complexity_features),
@@ -46,7 +42,7 @@ class Orchestrator:
         self.config = config
         self.checkpoint_dir = checkpoint_dir
 
-        # Resolve enabled features from registry + config overrides
+        # get enabled features from registry + config overrides
         feature_overrides = config.get("features", {}).get("overrides", {})
         self.enabled_features = get_enabled_features(feature_overrides)
         self.required_modules = get_required_modules(self.enabled_features)
@@ -64,62 +60,77 @@ class Orchestrator:
 
     def run_passes(self, essays: list[Essay], force: bool = False) -> None:
         """Execute all passes over the essay corpus.
-
-        Parameters
-        ----------
-        essays
-            List of Essay objects to process.
-        force
-            If True, ignore checkpoints and re-run all passes.
+            force flag -> ignore checkpoints and re-run all passes.
         """
+        chunk_size = self.config.get("cache", {}).get("checkpoint_chunk_size", 500)
+
         for pass_instance in self._get_passes():
             pass_name = pass_instance.name
 
-            # Try loading checkpoint
+            # Try loading full checkpoint first (all essays covered)
             if self.checkpoint_dir and not force:
                 if load_checkpoint(essays, pass_name, self.checkpoint_dir):
                     logger.info(f"Skipping pass '{pass_name}' (checkpoint)")
                     continue
 
+            # Load partial checkpoint — get only unprocessed essays
+            if self.checkpoint_dir and not force:
+                remaining = load_partial_checkpoint(
+                    essays, pass_name, self.checkpoint_dir
+                )
+            else:
+                remaining = essays
+
+            if not remaining:
+                logger.info(f"Skipping pass '{pass_name}' (fully checkpointed)")
+                continue
+
             # Run pass
-            logger.info(f"Pass '{pass_name}': processing {len(essays)} essays...")
+            logger.info(
+                f"Pass '{pass_name}': processing {len(remaining)} essays "
+                f"({len(essays) - len(remaining)} restored from checkpoint)..."
+            )
             pass_instance.load_model()
             start = time.time()
+            batch_size = self.config.get("hardware", {}).get("batch_size", 16)
 
-            # Use batch processing if available
-            if hasattr(pass_instance, "process_batch") and pass_name == "spacy":
-                # Process in batches for spaCy pipe efficiency
-                batch_size = self.config.get("hardware", {}).get("batch_size", 16)
-                for i in tqdm(
-                    range(0, len(essays), batch_size),
-                    desc=f"Pass: {pass_name}",
-                    unit="batch",
-                ):
-                    batch = essays[i:i + batch_size]
-                    pass_instance.process_batch(batch)
-            else:
-                for essay in tqdm(essays, desc=f"Pass: {pass_name}", unit="essay"):
-                    pass_instance.process_essay(essay)
+            for chunk_start in range(0, len(remaining), chunk_size):
+                chunk = remaining[chunk_start:chunk_start + chunk_size]
+
+                if hasattr(pass_instance, "process_batch") and pass_name == "spacy":
+                    for i in tqdm(
+                        range(0, len(chunk), batch_size),
+                        desc=f"Pass: {pass_name} (chunk {chunk_start // chunk_size + 1})",
+                        unit="batch",
+                    ):
+                        batch = chunk[i:i + batch_size]
+                        pass_instance.process_batch(batch)
+                else:
+                    for essay in tqdm(
+                        chunk,
+                        desc=f"Pass: {pass_name} (chunk {chunk_start // chunk_size + 1})",
+                        unit="essay",
+                    ):
+                        pass_instance.process_essay(essay)
+
+                # Incremental save after each chunk
+                if self.checkpoint_dir:
+                    save_checkpoint_incremental(
+                        chunk, pass_name, self.checkpoint_dir
+                    )
 
             elapsed = time.time() - start
-            eps = len(essays) / elapsed if elapsed > 0 else 0
+            eps = len(remaining) / elapsed if elapsed > 0 else 0
             logger.info(
                 f"Pass '{pass_name}': completed in {elapsed:.1f}s "
                 f"({eps:.1f} essays/sec)"
             )
 
-            # Unload model to free resources before saving checkpoint
+            # Unload model to free resources
             pass_instance.unload_model()
 
-            # Save checkpoint
-            if self.checkpoint_dir:
-                save_checkpoint(essays, pass_name, self.checkpoint_dir)
-
     def compute_features(self, essays: list[Essay]) -> None:
-        """Run enabled feature modules and filter to enabled features.
-
-        Features are stored in each essay.features dict.
-        """
+        """Run enabled feature modules and filter to enabled features"""
         active_modules = [
             (name, fn) for name, fn in FEATURE_MODULES
             if name in self.required_modules
@@ -147,24 +158,10 @@ class Orchestrator:
             }
 
     def run(self, essays: list[Essay], force: bool = False) -> list[Essay]:
-        """Execute the full pipeline: passes → features.
-
-        Parameters
-        ----------
-        essays
-            List of Essay objects with text populated.
-        force
-            If True, re-run all passes ignoring checkpoints.
-
-        Returns
-        -------
-        list[Essay]
-            Same essays with pass_results and features populated.
-        """
+        """Execute the full pipeline: passes → features."""
         self.run_passes(essays, force=force)
         self.compute_features(essays)
 
-        # Log feature count
         if essays:
             n_features = len(essays[0].features)
             logger.info(f"Extraction complete: {n_features} features per essay")
