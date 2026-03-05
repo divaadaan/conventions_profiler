@@ -11,7 +11,7 @@ env/
 .vscode/
 *.swp
 cache/
-data/raw/
+**/data/raw/
 *.parquet
 *.feather
 .ipynb_checkpoints/

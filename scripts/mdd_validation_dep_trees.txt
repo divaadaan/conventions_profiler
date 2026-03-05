@@ -1,0 +1,815 @@
+================================================================================
+Case: low_01_clean (none)
+================================================================================
+
+--- CLEAN ---
+Sentence: The student completed the assignment on time.
+    0 The                  POS=DET    DEP=det          HEAD=student (i=1)
+    1 student              POS=NOUN   DEP=nsubj        HEAD=completed (i=2)
+    2 completed            POS=VERB   DEP=ROOT         HEAD=completed (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=assignment (i=4)
+    4 assignment           POS=NOUN   DEP=dobj         HEAD=completed (i=2)
+    5 on                   POS=ADP    DEP=prep         HEAD=completed (i=2)
+    6 time                 POS=NOUN   DEP=pobj         HEAD=on (i=5)
+    7 .                    POS=PUNCT  DEP=punct        HEAD=completed (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The student completed the assignment on time.
+    0 The                  POS=DET    DEP=det          HEAD=student (i=1)
+    1 student              POS=NOUN   DEP=nsubj        HEAD=completed (i=2)
+    2 completed            POS=VERB   DEP=ROOT         HEAD=completed (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=assignment (i=4)
+    4 assignment           POS=NOUN   DEP=dobj         HEAD=completed (i=2)
+    5 on                   POS=ADP    DEP=prep         HEAD=completed (i=2)
+    6 time                 POS=NOUN   DEP=pobj         HEAD=on (i=5)
+    7 .                    POS=PUNCT  DEP=punct        HEAD=completed (i=2)
+
+
+================================================================================
+Case: low_02_spelling (spelling)
+================================================================================
+
+--- CLEAN ---
+Sentence: The student completed the assignment on time.
+    0 The                  POS=DET    DEP=det          HEAD=student (i=1)
+    1 student              POS=NOUN   DEP=nsubj        HEAD=completed (i=2)
+    2 completed            POS=VERB   DEP=ROOT         HEAD=completed (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=assignment (i=4)
+    4 assignment           POS=NOUN   DEP=dobj         HEAD=completed (i=2)
+    5 on                   POS=ADP    DEP=prep         HEAD=completed (i=2)
+    6 time                 POS=NOUN   DEP=pobj         HEAD=on (i=5)
+    7 .                    POS=PUNCT  DEP=punct        HEAD=completed (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The studnet complted the assignment on time.
+    0 The                  POS=DET    DEP=det          HEAD=studnet (i=1)
+    1 studnet              POS=NOUN   DEP=nsubj        HEAD=complted (i=2)
+    2 complted             POS=VERB   DEP=ROOT         HEAD=complted (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=assignment (i=4)
+    4 assignment           POS=NOUN   DEP=dobj         HEAD=complted (i=2)
+    5 on                   POS=ADP    DEP=prep         HEAD=complted (i=2)
+    6 time                 POS=NOUN   DEP=pobj         HEAD=on (i=5)
+    7 .                    POS=PUNCT  DEP=punct        HEAD=complted (i=2)
+
+
+================================================================================
+Case: low_03_svagree (sv_agreement)
+================================================================================
+
+--- CLEAN ---
+Sentence: The student completes the assignment on time.
+    0 The                  POS=DET    DEP=det          HEAD=student (i=1)
+    1 student              POS=NOUN   DEP=nsubj        HEAD=completes (i=2)
+    2 completes            POS=VERB   DEP=ROOT         HEAD=completes (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=assignment (i=4)
+    4 assignment           POS=NOUN   DEP=dobj         HEAD=completes (i=2)
+    5 on                   POS=ADP    DEP=prep         HEAD=completes (i=2)
+    6 time                 POS=NOUN   DEP=pobj         HEAD=on (i=5)
+    7 .                    POS=PUNCT  DEP=punct        HEAD=completes (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The student complete the assignment on time.
+    0 The                  POS=DET    DEP=det          HEAD=student (i=1)
+    1 student              POS=NOUN   DEP=nsubj        HEAD=complete (i=2)
+    2 complete             POS=VERB   DEP=ROOT         HEAD=complete (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=assignment (i=4)
+    4 assignment           POS=NOUN   DEP=dobj         HEAD=complete (i=2)
+    5 on                   POS=ADP    DEP=prep         HEAD=complete (i=2)
+    6 time                 POS=NOUN   DEP=pobj         HEAD=on (i=5)
+    7 .                    POS=PUNCT  DEP=punct        HEAD=complete (i=2)
+
+
+================================================================================
+Case: low_04_comma_splice (comma_splice)
+================================================================================
+
+--- CLEAN ---
+Sentence: The student finished early.
+    0 The                  POS=DET    DEP=det          HEAD=student (i=1)
+    1 student              POS=NOUN   DEP=nsubj        HEAD=finished (i=2)
+    2 finished             POS=VERB   DEP=ROOT         HEAD=finished (i=2)
+    3 early                POS=ADV    DEP=advmod       HEAD=finished (i=2)
+    4 .                    POS=PUNCT  DEP=punct        HEAD=finished (i=2)
+
+Sentence: She left the room.
+    5 She                  POS=PRON   DEP=nsubj        HEAD=left (i=6)
+    6 left                 POS=VERB   DEP=ROOT         HEAD=left (i=6)
+    7 the                  POS=DET    DEP=det          HEAD=room (i=8)
+    8 room                 POS=NOUN   DEP=dobj         HEAD=left (i=6)
+    9 .                    POS=PUNCT  DEP=punct        HEAD=left (i=6)
+
+
+--- CORRUPTED ---
+Sentence: The student finished early, she left the room.
+    0 The                  POS=DET    DEP=det          HEAD=student (i=1)
+    1 student              POS=NOUN   DEP=nsubj        HEAD=finished (i=2)
+    2 finished             POS=VERB   DEP=ccomp        HEAD=left (i=6)
+    3 early                POS=ADV    DEP=advmod       HEAD=finished (i=2)
+    4 ,                    POS=PUNCT  DEP=punct        HEAD=left (i=6)
+    5 she                  POS=PRON   DEP=nsubj        HEAD=left (i=6)
+    6 left                 POS=VERB   DEP=ROOT         HEAD=left (i=6)
+    7 the                  POS=DET    DEP=det          HEAD=room (i=8)
+    8 room                 POS=NOUN   DEP=dobj         HEAD=left (i=6)
+    9 .                    POS=PUNCT  DEP=punct        HEAD=left (i=6)
+
+
+================================================================================
+Case: low_05_missing_period (missing_boundary)
+================================================================================
+
+--- CLEAN ---
+Sentence: The dog ran fast.
+    0 The                  POS=DET    DEP=det          HEAD=dog (i=1)
+    1 dog                  POS=NOUN   DEP=nsubj        HEAD=ran (i=2)
+    2 ran                  POS=VERB   DEP=ROOT         HEAD=ran (i=2)
+    3 fast                 POS=ADV    DEP=advmod       HEAD=ran (i=2)
+    4 .                    POS=PUNCT  DEP=punct        HEAD=ran (i=2)
+
+Sentence: The cat sat still.
+    5 The                  POS=DET    DEP=det          HEAD=cat (i=6)
+    6 cat                  POS=NOUN   DEP=nsubj        HEAD=sat (i=7)
+    7 sat                  POS=VERB   DEP=ROOT         HEAD=sat (i=7)
+    8 still                POS=ADV    DEP=advmod       HEAD=sat (i=7)
+    9 .                    POS=PUNCT  DEP=punct        HEAD=sat (i=7)
+
+
+--- CORRUPTED ---
+Sentence: The dog ran fast the cat sat still.
+    0 The                  POS=DET    DEP=det          HEAD=dog (i=1)
+    1 dog                  POS=NOUN   DEP=nsubj        HEAD=ran (i=2)
+    2 ran                  POS=VERB   DEP=ccomp        HEAD=sat (i=6)
+    3 fast                 POS=ADV    DEP=advmod       HEAD=ran (i=2)
+    4 the                  POS=DET    DEP=det          HEAD=cat (i=5)
+    5 cat                  POS=NOUN   DEP=nsubj        HEAD=sat (i=6)
+    6 sat                  POS=VERB   DEP=ROOT         HEAD=sat (i=6)
+    7 still                POS=ADV    DEP=advmod       HEAD=sat (i=6)
+    8 .                    POS=PUNCT  DEP=punct        HEAD=sat (i=6)
+
+
+================================================================================
+Case: med_01_clean (none)
+================================================================================
+
+--- CLEAN ---
+Sentence: Although the experiment failed, the researchers published their findings.
+    0 Although             POS=SCONJ  DEP=mark         HEAD=failed (i=3)
+    1 the                  POS=DET    DEP=det          HEAD=experiment (i=2)
+    2 experiment           POS=NOUN   DEP=nsubj        HEAD=failed (i=3)
+    3 failed               POS=VERB   DEP=advcl        HEAD=published (i=7)
+    4 ,                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+    5 the                  POS=DET    DEP=det          HEAD=researchers (i=6)
+    6 researchers          POS=NOUN   DEP=nsubj        HEAD=published (i=7)
+    7 published            POS=VERB   DEP=ROOT         HEAD=published (i=7)
+    8 their                POS=PRON   DEP=poss         HEAD=findings (i=9)
+    9 findings             POS=NOUN   DEP=dobj         HEAD=published (i=7)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+
+
+--- CORRUPTED ---
+Sentence: Although the experiment failed, the researchers published their findings.
+    0 Although             POS=SCONJ  DEP=mark         HEAD=failed (i=3)
+    1 the                  POS=DET    DEP=det          HEAD=experiment (i=2)
+    2 experiment           POS=NOUN   DEP=nsubj        HEAD=failed (i=3)
+    3 failed               POS=VERB   DEP=advcl        HEAD=published (i=7)
+    4 ,                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+    5 the                  POS=DET    DEP=det          HEAD=researchers (i=6)
+    6 researchers          POS=NOUN   DEP=nsubj        HEAD=published (i=7)
+    7 published            POS=VERB   DEP=ROOT         HEAD=published (i=7)
+    8 their                POS=PRON   DEP=poss         HEAD=findings (i=9)
+    9 findings             POS=NOUN   DEP=dobj         HEAD=published (i=7)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+
+
+================================================================================
+Case: med_02_spelling (spelling)
+================================================================================
+
+--- CLEAN ---
+Sentence: Although the experiment failed, the researchers published their findings.
+    0 Although             POS=SCONJ  DEP=mark         HEAD=failed (i=3)
+    1 the                  POS=DET    DEP=det          HEAD=experiment (i=2)
+    2 experiment           POS=NOUN   DEP=nsubj        HEAD=failed (i=3)
+    3 failed               POS=VERB   DEP=advcl        HEAD=published (i=7)
+    4 ,                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+    5 the                  POS=DET    DEP=det          HEAD=researchers (i=6)
+    6 researchers          POS=NOUN   DEP=nsubj        HEAD=published (i=7)
+    7 published            POS=VERB   DEP=ROOT         HEAD=published (i=7)
+    8 their                POS=PRON   DEP=poss         HEAD=findings (i=9)
+    9 findings             POS=NOUN   DEP=dobj         HEAD=published (i=7)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+
+
+--- CORRUPTED ---
+Sentence: Although the expiriment failed, the reserchers published their findings.
+    0 Although             POS=SCONJ  DEP=mark         HEAD=failed (i=3)
+    1 the                  POS=DET    DEP=det          HEAD=expiriment (i=2)
+    2 expiriment           POS=NOUN   DEP=nsubj        HEAD=failed (i=3)
+    3 failed               POS=VERB   DEP=advcl        HEAD=published (i=7)
+    4 ,                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+    5 the                  POS=DET    DEP=det          HEAD=reserchers (i=6)
+    6 reserchers           POS=NOUN   DEP=nsubj        HEAD=published (i=7)
+    7 published            POS=VERB   DEP=ROOT         HEAD=published (i=7)
+    8 their                POS=PRON   DEP=poss         HEAD=findings (i=9)
+    9 findings             POS=NOUN   DEP=dobj         HEAD=published (i=7)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+
+
+================================================================================
+Case: med_03_missing_comma (missing_comma)
+================================================================================
+
+--- CLEAN ---
+Sentence: Although the experiment failed, the researchers published their findings.
+    0 Although             POS=SCONJ  DEP=mark         HEAD=failed (i=3)
+    1 the                  POS=DET    DEP=det          HEAD=experiment (i=2)
+    2 experiment           POS=NOUN   DEP=nsubj        HEAD=failed (i=3)
+    3 failed               POS=VERB   DEP=advcl        HEAD=published (i=7)
+    4 ,                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+    5 the                  POS=DET    DEP=det          HEAD=researchers (i=6)
+    6 researchers          POS=NOUN   DEP=nsubj        HEAD=published (i=7)
+    7 published            POS=VERB   DEP=ROOT         HEAD=published (i=7)
+    8 their                POS=PRON   DEP=poss         HEAD=findings (i=9)
+    9 findings             POS=NOUN   DEP=dobj         HEAD=published (i=7)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=published (i=7)
+
+
+--- CORRUPTED ---
+Sentence: Although the experiment failed the researchers published their findings.
+    0 Although             POS=SCONJ  DEP=mark         HEAD=failed (i=3)
+    1 the                  POS=DET    DEP=det          HEAD=experiment (i=2)
+    2 experiment           POS=NOUN   DEP=nsubj        HEAD=failed (i=3)
+    3 failed               POS=VERB   DEP=advcl        HEAD=published (i=6)
+    4 the                  POS=DET    DEP=det          HEAD=researchers (i=5)
+    5 researchers          POS=NOUN   DEP=nsubj        HEAD=published (i=6)
+    6 published            POS=VERB   DEP=ROOT         HEAD=published (i=6)
+    7 their                POS=PRON   DEP=poss         HEAD=findings (i=8)
+    8 findings             POS=NOUN   DEP=dobj         HEAD=published (i=6)
+    9 .                    POS=PUNCT  DEP=punct        HEAD=published (i=6)
+
+
+================================================================================
+Case: med_04_conj_clean (none)
+================================================================================
+
+--- CLEAN ---
+Sentence: The team analyzed the data and wrote a detailed report.
+    0 The                  POS=DET    DEP=det          HEAD=team (i=1)
+    1 team                 POS=NOUN   DEP=nsubj        HEAD=analyzed (i=2)
+    2 analyzed             POS=VERB   DEP=ROOT         HEAD=analyzed (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=data (i=4)
+    4 data                 POS=NOUN   DEP=dobj         HEAD=analyzed (i=2)
+    5 and                  POS=CCONJ  DEP=cc           HEAD=analyzed (i=2)
+    6 wrote                POS=VERB   DEP=conj         HEAD=analyzed (i=2)
+    7 a                    POS=DET    DEP=det          HEAD=report (i=9)
+    8 detailed             POS=ADJ    DEP=amod         HEAD=report (i=9)
+    9 report               POS=NOUN   DEP=dobj         HEAD=wrote (i=6)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=analyzed (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The team analyzed the data and wrote a detailed report.
+    0 The                  POS=DET    DEP=det          HEAD=team (i=1)
+    1 team                 POS=NOUN   DEP=nsubj        HEAD=analyzed (i=2)
+    2 analyzed             POS=VERB   DEP=ROOT         HEAD=analyzed (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=data (i=4)
+    4 data                 POS=NOUN   DEP=dobj         HEAD=analyzed (i=2)
+    5 and                  POS=CCONJ  DEP=cc           HEAD=analyzed (i=2)
+    6 wrote                POS=VERB   DEP=conj         HEAD=analyzed (i=2)
+    7 a                    POS=DET    DEP=det          HEAD=report (i=9)
+    8 detailed             POS=ADJ    DEP=amod         HEAD=report (i=9)
+    9 report               POS=NOUN   DEP=dobj         HEAD=wrote (i=6)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=analyzed (i=2)
+
+
+================================================================================
+Case: med_05_conj_error (spelling_morphological)
+================================================================================
+
+--- CLEAN ---
+Sentence: The team analyzed the data and wrote a detailed report.
+    0 The                  POS=DET    DEP=det          HEAD=team (i=1)
+    1 team                 POS=NOUN   DEP=nsubj        HEAD=analyzed (i=2)
+    2 analyzed             POS=VERB   DEP=ROOT         HEAD=analyzed (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=data (i=4)
+    4 data                 POS=NOUN   DEP=dobj         HEAD=analyzed (i=2)
+    5 and                  POS=CCONJ  DEP=cc           HEAD=analyzed (i=2)
+    6 wrote                POS=VERB   DEP=conj         HEAD=analyzed (i=2)
+    7 a                    POS=DET    DEP=det          HEAD=report (i=9)
+    8 detailed             POS=ADJ    DEP=amod         HEAD=report (i=9)
+    9 report               POS=NOUN   DEP=dobj         HEAD=wrote (i=6)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=analyzed (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The team analized the data and writed a detailed report.
+    0 The                  POS=DET    DEP=det          HEAD=team (i=1)
+    1 team                 POS=NOUN   DEP=nsubj        HEAD=analized (i=2)
+    2 analized             POS=VERB   DEP=ROOT         HEAD=analized (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=data (i=4)
+    4 data                 POS=NOUN   DEP=dobj         HEAD=analized (i=2)
+    5 and                  POS=CCONJ  DEP=cc           HEAD=analized (i=2)
+    6 writed               POS=VERB   DEP=conj         HEAD=analized (i=2)
+    7 a                    POS=DET    DEP=det          HEAD=report (i=9)
+    8 detailed             POS=ADJ    DEP=amod         HEAD=report (i=9)
+    9 report               POS=NOUN   DEP=dobj         HEAD=writed (i=6)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=analized (i=2)
+
+
+================================================================================
+Case: med_06_fragment (fragment)
+================================================================================
+
+--- CLEAN ---
+Sentence: Because the weather was bad, they canceled the game.
+    0 Because              POS=SCONJ  DEP=mark         HEAD=was (i=3)
+    1 the                  POS=DET    DEP=det          HEAD=weather (i=2)
+    2 weather              POS=NOUN   DEP=nsubj        HEAD=was (i=3)
+    3 was                  POS=AUX    DEP=advcl        HEAD=canceled (i=7)
+    4 bad                  POS=ADJ    DEP=acomp        HEAD=was (i=3)
+    5 ,                    POS=PUNCT  DEP=punct        HEAD=canceled (i=7)
+    6 they                 POS=PRON   DEP=nsubj        HEAD=canceled (i=7)
+    7 canceled             POS=VERB   DEP=ROOT         HEAD=canceled (i=7)
+    8 the                  POS=DET    DEP=det          HEAD=game (i=9)
+    9 game                 POS=NOUN   DEP=dobj         HEAD=canceled (i=7)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=canceled (i=7)
+
+
+--- CORRUPTED ---
+Sentence: Because the weather was bad.
+    0 Because              POS=SCONJ  DEP=mark         HEAD=was (i=3)
+    1 the                  POS=DET    DEP=det          HEAD=weather (i=2)
+    2 weather              POS=NOUN   DEP=nsubj        HEAD=was (i=3)
+    3 was                  POS=AUX    DEP=ROOT         HEAD=was (i=3)
+    4 bad                  POS=ADJ    DEP=acomp        HEAD=was (i=3)
+    5 .                    POS=PUNCT  DEP=punct        HEAD=was (i=3)
+
+Sentence: They canceled the game.
+    6 They                 POS=PRON   DEP=nsubj        HEAD=canceled (i=7)
+    7 canceled             POS=VERB   DEP=ROOT         HEAD=canceled (i=7)
+    8 the                  POS=DET    DEP=det          HEAD=game (i=9)
+    9 game                 POS=NOUN   DEP=dobj         HEAD=canceled (i=7)
+   10 .                    POS=PUNCT  DEP=punct        HEAD=canceled (i=7)
+
+
+================================================================================
+Case: high_01_relcl_clean (none)
+================================================================================
+
+--- CLEAN ---
+Sentence: The professor who taught the advanced seminar assigned a paper that required extensive research.
+    0 The                  POS=DET    DEP=det          HEAD=professor (i=1)
+    1 professor            POS=NOUN   DEP=nsubj        HEAD=assigned (i=7)
+    2 who                  POS=PRON   DEP=nsubj        HEAD=taught (i=3)
+    3 taught               POS=VERB   DEP=relcl        HEAD=professor (i=1)
+    4 the                  POS=DET    DEP=det          HEAD=seminar (i=6)
+    5 advanced             POS=ADJ    DEP=amod         HEAD=seminar (i=6)
+    6 seminar              POS=NOUN   DEP=dobj         HEAD=taught (i=3)
+    7 assigned             POS=VERB   DEP=ROOT         HEAD=assigned (i=7)
+    8 a                    POS=DET    DEP=det          HEAD=paper (i=9)
+    9 paper                POS=NOUN   DEP=dobj         HEAD=assigned (i=7)
+   10 that                 POS=PRON   DEP=nsubj        HEAD=required (i=11)
+   11 required             POS=VERB   DEP=relcl        HEAD=paper (i=9)
+   12 extensive            POS=ADJ    DEP=amod         HEAD=research (i=13)
+   13 research             POS=NOUN   DEP=dobj         HEAD=required (i=11)
+   14 .                    POS=PUNCT  DEP=punct        HEAD=assigned (i=7)
+
+
+--- CORRUPTED ---
+Sentence: The professor who taught the advanced seminar assigned a paper that required extensive research.
+    0 The                  POS=DET    DEP=det          HEAD=professor (i=1)
+    1 professor            POS=NOUN   DEP=nsubj        HEAD=assigned (i=7)
+    2 who                  POS=PRON   DEP=nsubj        HEAD=taught (i=3)
+    3 taught               POS=VERB   DEP=relcl        HEAD=professor (i=1)
+    4 the                  POS=DET    DEP=det          HEAD=seminar (i=6)
+    5 advanced             POS=ADJ    DEP=amod         HEAD=seminar (i=6)
+    6 seminar              POS=NOUN   DEP=dobj         HEAD=taught (i=3)
+    7 assigned             POS=VERB   DEP=ROOT         HEAD=assigned (i=7)
+    8 a                    POS=DET    DEP=det          HEAD=paper (i=9)
+    9 paper                POS=NOUN   DEP=dobj         HEAD=assigned (i=7)
+   10 that                 POS=PRON   DEP=nsubj        HEAD=required (i=11)
+   11 required             POS=VERB   DEP=relcl        HEAD=paper (i=9)
+   12 extensive            POS=ADJ    DEP=amod         HEAD=research (i=13)
+   13 research             POS=NOUN   DEP=dobj         HEAD=required (i=11)
+   14 .                    POS=PUNCT  DEP=punct        HEAD=assigned (i=7)
+
+
+================================================================================
+Case: high_02_relcl_spelling (spelling)
+================================================================================
+
+--- CLEAN ---
+Sentence: The professor who taught the advanced seminar assigned a paper that required extensive research.
+    0 The                  POS=DET    DEP=det          HEAD=professor (i=1)
+    1 professor            POS=NOUN   DEP=nsubj        HEAD=assigned (i=7)
+    2 who                  POS=PRON   DEP=nsubj        HEAD=taught (i=3)
+    3 taught               POS=VERB   DEP=relcl        HEAD=professor (i=1)
+    4 the                  POS=DET    DEP=det          HEAD=seminar (i=6)
+    5 advanced             POS=ADJ    DEP=amod         HEAD=seminar (i=6)
+    6 seminar              POS=NOUN   DEP=dobj         HEAD=taught (i=3)
+    7 assigned             POS=VERB   DEP=ROOT         HEAD=assigned (i=7)
+    8 a                    POS=DET    DEP=det          HEAD=paper (i=9)
+    9 paper                POS=NOUN   DEP=dobj         HEAD=assigned (i=7)
+   10 that                 POS=PRON   DEP=nsubj        HEAD=required (i=11)
+   11 required             POS=VERB   DEP=relcl        HEAD=paper (i=9)
+   12 extensive            POS=ADJ    DEP=amod         HEAD=research (i=13)
+   13 research             POS=NOUN   DEP=dobj         HEAD=required (i=11)
+   14 .                    POS=PUNCT  DEP=punct        HEAD=assigned (i=7)
+
+
+--- CORRUPTED ---
+Sentence: The proffessor who tought the advanced seminar assigned a paper that requried extensive reserch.
+    0 The                  POS=DET    DEP=det          HEAD=proffessor (i=1)
+    1 proffessor           POS=NOUN   DEP=nsubj        HEAD=assigned (i=7)
+    2 who                  POS=PRON   DEP=nsubj        HEAD=tought (i=3)
+    3 tought               POS=VERB   DEP=relcl        HEAD=proffessor (i=1)
+    4 the                  POS=DET    DEP=det          HEAD=seminar (i=6)
+    5 advanced             POS=ADJ    DEP=amod         HEAD=seminar (i=6)
+    6 seminar              POS=NOUN   DEP=dobj         HEAD=tought (i=3)
+    7 assigned             POS=VERB   DEP=ROOT         HEAD=assigned (i=7)
+    8 a                    POS=DET    DEP=det          HEAD=paper (i=9)
+    9 paper                POS=NOUN   DEP=dobj         HEAD=assigned (i=7)
+   10 that                 POS=PRON   DEP=nsubj        HEAD=requried (i=11)
+   11 requried             POS=VERB   DEP=relcl        HEAD=paper (i=9)
+   12 extensive            POS=ADJ    DEP=amod         HEAD=reserch (i=13)
+   13 reserch              POS=NOUN   DEP=dobj         HEAD=requried (i=11)
+   14 .                    POS=PUNCT  DEP=punct        HEAD=assigned (i=7)
+
+
+================================================================================
+Case: high_03_relcl_missing_pronoun (missing_rel_pronoun)
+================================================================================
+
+--- CLEAN ---
+Sentence: The professor who taught the advanced seminar assigned a paper that required extensive research.
+    0 The                  POS=DET    DEP=det          HEAD=professor (i=1)
+    1 professor            POS=NOUN   DEP=nsubj        HEAD=assigned (i=7)
+    2 who                  POS=PRON   DEP=nsubj        HEAD=taught (i=3)
+    3 taught               POS=VERB   DEP=relcl        HEAD=professor (i=1)
+    4 the                  POS=DET    DEP=det          HEAD=seminar (i=6)
+    5 advanced             POS=ADJ    DEP=amod         HEAD=seminar (i=6)
+    6 seminar              POS=NOUN   DEP=dobj         HEAD=taught (i=3)
+    7 assigned             POS=VERB   DEP=ROOT         HEAD=assigned (i=7)
+    8 a                    POS=DET    DEP=det          HEAD=paper (i=9)
+    9 paper                POS=NOUN   DEP=dobj         HEAD=assigned (i=7)
+   10 that                 POS=PRON   DEP=nsubj        HEAD=required (i=11)
+   11 required             POS=VERB   DEP=relcl        HEAD=paper (i=9)
+   12 extensive            POS=ADJ    DEP=amod         HEAD=research (i=13)
+   13 research             POS=NOUN   DEP=dobj         HEAD=required (i=11)
+   14 .                    POS=PUNCT  DEP=punct        HEAD=assigned (i=7)
+
+
+--- CORRUPTED ---
+Sentence: The professor taught the advanced seminar assigned a paper required extensive research.
+    0 The                  POS=DET    DEP=det          HEAD=professor (i=1)
+    1 professor            POS=NOUN   DEP=nsubj        HEAD=assigned (i=6)
+    2 taught               POS=VERB   DEP=acl          HEAD=professor (i=1)
+    3 the                  POS=DET    DEP=det          HEAD=seminar (i=5)
+    4 advanced             POS=ADJ    DEP=amod         HEAD=seminar (i=5)
+    5 seminar              POS=NOUN   DEP=dobj         HEAD=taught (i=2)
+    6 assigned             POS=VERB   DEP=ROOT         HEAD=assigned (i=6)
+    7 a                    POS=DET    DEP=det          HEAD=paper (i=8)
+    8 paper                POS=NOUN   DEP=dobj         HEAD=assigned (i=6)
+    9 required             POS=VERB   DEP=acl          HEAD=paper (i=8)
+   10 extensive            POS=ADJ    DEP=amod         HEAD=research (i=11)
+   11 research             POS=NOUN   DEP=dobj         HEAD=required (i=9)
+   12 .                    POS=PUNCT  DEP=punct        HEAD=assigned (i=6)
+
+
+================================================================================
+Case: high_04_xcomp_clean (none)
+================================================================================
+
+--- CLEAN ---
+Sentence: The committee decided to postpone the vote until they managed to review all the evidence.
+    0 The                  POS=DET    DEP=det          HEAD=committee (i=1)
+    1 committee            POS=NOUN   DEP=nsubj        HEAD=decided (i=2)
+    2 decided              POS=VERB   DEP=ROOT         HEAD=decided (i=2)
+    3 to                   POS=PART   DEP=aux          HEAD=postpone (i=4)
+    4 postpone             POS=VERB   DEP=xcomp        HEAD=decided (i=2)
+    5 the                  POS=DET    DEP=det          HEAD=vote (i=6)
+    6 vote                 POS=NOUN   DEP=dobj         HEAD=postpone (i=4)
+    7 until                POS=SCONJ  DEP=mark         HEAD=managed (i=9)
+    8 they                 POS=PRON   DEP=nsubj        HEAD=managed (i=9)
+    9 managed              POS=VERB   DEP=advcl        HEAD=postpone (i=4)
+   10 to                   POS=PART   DEP=aux          HEAD=review (i=11)
+   11 review               POS=VERB   DEP=xcomp        HEAD=managed (i=9)
+   12 all                  POS=DET    DEP=predet       HEAD=evidence (i=14)
+   13 the                  POS=DET    DEP=det          HEAD=evidence (i=14)
+   14 evidence             POS=NOUN   DEP=dobj         HEAD=review (i=11)
+   15 .                    POS=PUNCT  DEP=punct        HEAD=decided (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The committee decided to postpone the vote until they managed to review all the evidence.
+    0 The                  POS=DET    DEP=det          HEAD=committee (i=1)
+    1 committee            POS=NOUN   DEP=nsubj        HEAD=decided (i=2)
+    2 decided              POS=VERB   DEP=ROOT         HEAD=decided (i=2)
+    3 to                   POS=PART   DEP=aux          HEAD=postpone (i=4)
+    4 postpone             POS=VERB   DEP=xcomp        HEAD=decided (i=2)
+    5 the                  POS=DET    DEP=det          HEAD=vote (i=6)
+    6 vote                 POS=NOUN   DEP=dobj         HEAD=postpone (i=4)
+    7 until                POS=SCONJ  DEP=mark         HEAD=managed (i=9)
+    8 they                 POS=PRON   DEP=nsubj        HEAD=managed (i=9)
+    9 managed              POS=VERB   DEP=advcl        HEAD=postpone (i=4)
+   10 to                   POS=PART   DEP=aux          HEAD=review (i=11)
+   11 review               POS=VERB   DEP=xcomp        HEAD=managed (i=9)
+   12 all                  POS=DET    DEP=predet       HEAD=evidence (i=14)
+   13 the                  POS=DET    DEP=det          HEAD=evidence (i=14)
+   14 evidence             POS=NOUN   DEP=dobj         HEAD=review (i=11)
+   15 .                    POS=PUNCT  DEP=punct        HEAD=decided (i=2)
+
+
+================================================================================
+Case: high_05_xcomp_error (missing_infinitive_marker)
+================================================================================
+
+--- CLEAN ---
+Sentence: The committee decided to postpone the vote until they managed to review all the evidence.
+    0 The                  POS=DET    DEP=det          HEAD=committee (i=1)
+    1 committee            POS=NOUN   DEP=nsubj        HEAD=decided (i=2)
+    2 decided              POS=VERB   DEP=ROOT         HEAD=decided (i=2)
+    3 to                   POS=PART   DEP=aux          HEAD=postpone (i=4)
+    4 postpone             POS=VERB   DEP=xcomp        HEAD=decided (i=2)
+    5 the                  POS=DET    DEP=det          HEAD=vote (i=6)
+    6 vote                 POS=NOUN   DEP=dobj         HEAD=postpone (i=4)
+    7 until                POS=SCONJ  DEP=mark         HEAD=managed (i=9)
+    8 they                 POS=PRON   DEP=nsubj        HEAD=managed (i=9)
+    9 managed              POS=VERB   DEP=advcl        HEAD=postpone (i=4)
+   10 to                   POS=PART   DEP=aux          HEAD=review (i=11)
+   11 review               POS=VERB   DEP=xcomp        HEAD=managed (i=9)
+   12 all                  POS=DET    DEP=predet       HEAD=evidence (i=14)
+   13 the                  POS=DET    DEP=det          HEAD=evidence (i=14)
+   14 evidence             POS=NOUN   DEP=dobj         HEAD=review (i=11)
+   15 .                    POS=PUNCT  DEP=punct        HEAD=decided (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The committee decided postpone the vote until they managed review all the evidence.
+    0 The                  POS=DET    DEP=det          HEAD=committee (i=1)
+    1 committee            POS=NOUN   DEP=nsubj        HEAD=decided (i=2)
+    2 decided              POS=VERB   DEP=ROOT         HEAD=decided (i=2)
+    3 postpone             POS=VERB   DEP=xcomp        HEAD=decided (i=2)
+    4 the                  POS=DET    DEP=det          HEAD=vote (i=5)
+    5 vote                 POS=NOUN   DEP=dobj         HEAD=postpone (i=3)
+    6 until                POS=SCONJ  DEP=mark         HEAD=managed (i=8)
+    7 they                 POS=PRON   DEP=nsubj        HEAD=managed (i=8)
+    8 managed              POS=VERB   DEP=advcl        HEAD=postpone (i=3)
+    9 review               POS=VERB   DEP=xcomp        HEAD=managed (i=8)
+   10 all                  POS=DET    DEP=predet       HEAD=evidence (i=12)
+   11 the                  POS=DET    DEP=det          HEAD=evidence (i=12)
+   12 evidence             POS=NOUN   DEP=dobj         HEAD=review (i=9)
+   13 .                    POS=PUNCT  DEP=punct        HEAD=decided (i=2)
+
+
+================================================================================
+Case: high_06_ccomp_clean (none)
+================================================================================
+
+--- CLEAN ---
+Sentence: The researchers argued that the results demonstrated a significant correlation between the variables.
+    0 The                  POS=DET    DEP=det          HEAD=researchers (i=1)
+    1 researchers          POS=NOUN   DEP=nsubj        HEAD=argued (i=2)
+    2 argued               POS=VERB   DEP=ROOT         HEAD=argued (i=2)
+    3 that                 POS=SCONJ  DEP=mark         HEAD=demonstrated (i=6)
+    4 the                  POS=DET    DEP=det          HEAD=results (i=5)
+    5 results              POS=NOUN   DEP=nsubj        HEAD=demonstrated (i=6)
+    6 demonstrated         POS=VERB   DEP=ccomp        HEAD=argued (i=2)
+    7 a                    POS=DET    DEP=det          HEAD=correlation (i=9)
+    8 significant          POS=ADJ    DEP=amod         HEAD=correlation (i=9)
+    9 correlation          POS=NOUN   DEP=dobj         HEAD=demonstrated (i=6)
+   10 between              POS=ADP    DEP=prep         HEAD=correlation (i=9)
+   11 the                  POS=DET    DEP=det          HEAD=variables (i=12)
+   12 variables            POS=NOUN   DEP=pobj         HEAD=between (i=10)
+   13 .                    POS=PUNCT  DEP=punct        HEAD=argued (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The researchers argued that the results demonstrated a significant correlation between the variables.
+    0 The                  POS=DET    DEP=det          HEAD=researchers (i=1)
+    1 researchers          POS=NOUN   DEP=nsubj        HEAD=argued (i=2)
+    2 argued               POS=VERB   DEP=ROOT         HEAD=argued (i=2)
+    3 that                 POS=SCONJ  DEP=mark         HEAD=demonstrated (i=6)
+    4 the                  POS=DET    DEP=det          HEAD=results (i=5)
+    5 results              POS=NOUN   DEP=nsubj        HEAD=demonstrated (i=6)
+    6 demonstrated         POS=VERB   DEP=ccomp        HEAD=argued (i=2)
+    7 a                    POS=DET    DEP=det          HEAD=correlation (i=9)
+    8 significant          POS=ADJ    DEP=amod         HEAD=correlation (i=9)
+    9 correlation          POS=NOUN   DEP=dobj         HEAD=demonstrated (i=6)
+   10 between              POS=ADP    DEP=prep         HEAD=correlation (i=9)
+   11 the                  POS=DET    DEP=det          HEAD=variables (i=12)
+   12 variables            POS=NOUN   DEP=pobj         HEAD=between (i=10)
+   13 .                    POS=PUNCT  DEP=punct        HEAD=argued (i=2)
+
+
+================================================================================
+Case: high_07_ccomp_error (missing_complementizer)
+================================================================================
+
+--- CLEAN ---
+Sentence: The researchers argued that the results demonstrated a significant correlation between the variables.
+    0 The                  POS=DET    DEP=det          HEAD=researchers (i=1)
+    1 researchers          POS=NOUN   DEP=nsubj        HEAD=argued (i=2)
+    2 argued               POS=VERB   DEP=ROOT         HEAD=argued (i=2)
+    3 that                 POS=SCONJ  DEP=mark         HEAD=demonstrated (i=6)
+    4 the                  POS=DET    DEP=det          HEAD=results (i=5)
+    5 results              POS=NOUN   DEP=nsubj        HEAD=demonstrated (i=6)
+    6 demonstrated         POS=VERB   DEP=ccomp        HEAD=argued (i=2)
+    7 a                    POS=DET    DEP=det          HEAD=correlation (i=9)
+    8 significant          POS=ADJ    DEP=amod         HEAD=correlation (i=9)
+    9 correlation          POS=NOUN   DEP=dobj         HEAD=demonstrated (i=6)
+   10 between              POS=ADP    DEP=prep         HEAD=correlation (i=9)
+   11 the                  POS=DET    DEP=det          HEAD=variables (i=12)
+   12 variables            POS=NOUN   DEP=pobj         HEAD=between (i=10)
+   13 .                    POS=PUNCT  DEP=punct        HEAD=argued (i=2)
+
+
+--- CORRUPTED ---
+Sentence: The researchers argued the results demonstrated a significant correlation between the variables.
+    0 The                  POS=DET    DEP=det          HEAD=researchers (i=1)
+    1 researchers          POS=NOUN   DEP=nsubj        HEAD=argued (i=2)
+    2 argued               POS=VERB   DEP=ROOT         HEAD=argued (i=2)
+    3 the                  POS=DET    DEP=det          HEAD=results (i=4)
+    4 results              POS=NOUN   DEP=nsubj        HEAD=demonstrated (i=5)
+    5 demonstrated         POS=VERB   DEP=ccomp        HEAD=argued (i=2)
+    6 a                    POS=DET    DEP=det          HEAD=correlation (i=8)
+    7 significant          POS=ADJ    DEP=amod         HEAD=correlation (i=8)
+    8 correlation          POS=NOUN   DEP=dobj         HEAD=demonstrated (i=5)
+    9 between              POS=ADP    DEP=prep         HEAD=correlation (i=8)
+   10 the                  POS=DET    DEP=det          HEAD=variables (i=11)
+   11 variables            POS=NOUN   DEP=pobj         HEAD=between (i=9)
+   12 .                    POS=PUNCT  DEP=punct        HEAD=argued (i=2)
+
+
+================================================================================
+Case: high_08_prep_stacked_clean (none)
+================================================================================
+
+--- CLEAN ---
+Sentence: The report on the impact of climate change on agricultural productivity in developing nations was released.
+    0 The                  POS=DET    DEP=det          HEAD=report (i=1)
+    1 report               POS=NOUN   DEP=nsubjpass    HEAD=released (i=15)
+    2 on                   POS=ADP    DEP=prep         HEAD=report (i=1)
+    3 the                  POS=DET    DEP=det          HEAD=impact (i=4)
+    4 impact               POS=NOUN   DEP=pobj         HEAD=on (i=2)
+    5 of                   POS=ADP    DEP=prep         HEAD=impact (i=4)
+    6 climate              POS=NOUN   DEP=compound     HEAD=change (i=7)
+    7 change               POS=NOUN   DEP=pobj         HEAD=of (i=5)
+    8 on                   POS=ADP    DEP=prep         HEAD=impact (i=4)
+    9 agricultural         POS=ADJ    DEP=amod         HEAD=productivity (i=10)
+   10 productivity         POS=NOUN   DEP=pobj         HEAD=on (i=8)
+   11 in                   POS=ADP    DEP=prep         HEAD=productivity (i=10)
+   12 developing           POS=VERB   DEP=amod         HEAD=nations (i=13)
+   13 nations              POS=NOUN   DEP=pobj         HEAD=in (i=11)
+   14 was                  POS=AUX    DEP=auxpass      HEAD=released (i=15)
+   15 released             POS=VERB   DEP=ROOT         HEAD=released (i=15)
+   16 .                    POS=PUNCT  DEP=punct        HEAD=released (i=15)
+
+
+--- CORRUPTED ---
+Sentence: The report on the impact of climate change on agricultural productivity in developing nations was released.
+    0 The                  POS=DET    DEP=det          HEAD=report (i=1)
+    1 report               POS=NOUN   DEP=nsubjpass    HEAD=released (i=15)
+    2 on                   POS=ADP    DEP=prep         HEAD=report (i=1)
+    3 the                  POS=DET    DEP=det          HEAD=impact (i=4)
+    4 impact               POS=NOUN   DEP=pobj         HEAD=on (i=2)
+    5 of                   POS=ADP    DEP=prep         HEAD=impact (i=4)
+    6 climate              POS=NOUN   DEP=compound     HEAD=change (i=7)
+    7 change               POS=NOUN   DEP=pobj         HEAD=of (i=5)
+    8 on                   POS=ADP    DEP=prep         HEAD=impact (i=4)
+    9 agricultural         POS=ADJ    DEP=amod         HEAD=productivity (i=10)
+   10 productivity         POS=NOUN   DEP=pobj         HEAD=on (i=8)
+   11 in                   POS=ADP    DEP=prep         HEAD=productivity (i=10)
+   12 developing           POS=VERB   DEP=amod         HEAD=nations (i=13)
+   13 nations              POS=NOUN   DEP=pobj         HEAD=in (i=11)
+   14 was                  POS=AUX    DEP=auxpass      HEAD=released (i=15)
+   15 released             POS=VERB   DEP=ROOT         HEAD=released (i=15)
+   16 .                    POS=PUNCT  DEP=punct        HEAD=released (i=15)
+
+
+================================================================================
+Case: high_09_prep_stacked_error (missing_aux)
+================================================================================
+
+--- CLEAN ---
+Sentence: The report on the impact of climate change on agricultural productivity in developing nations was released.
+    0 The                  POS=DET    DEP=det          HEAD=report (i=1)
+    1 report               POS=NOUN   DEP=nsubjpass    HEAD=released (i=15)
+    2 on                   POS=ADP    DEP=prep         HEAD=report (i=1)
+    3 the                  POS=DET    DEP=det          HEAD=impact (i=4)
+    4 impact               POS=NOUN   DEP=pobj         HEAD=on (i=2)
+    5 of                   POS=ADP    DEP=prep         HEAD=impact (i=4)
+    6 climate              POS=NOUN   DEP=compound     HEAD=change (i=7)
+    7 change               POS=NOUN   DEP=pobj         HEAD=of (i=5)
+    8 on                   POS=ADP    DEP=prep         HEAD=impact (i=4)
+    9 agricultural         POS=ADJ    DEP=amod         HEAD=productivity (i=10)
+   10 productivity         POS=NOUN   DEP=pobj         HEAD=on (i=8)
+   11 in                   POS=ADP    DEP=prep         HEAD=productivity (i=10)
+   12 developing           POS=VERB   DEP=amod         HEAD=nations (i=13)
+   13 nations              POS=NOUN   DEP=pobj         HEAD=in (i=11)
+   14 was                  POS=AUX    DEP=auxpass      HEAD=released (i=15)
+   15 released             POS=VERB   DEP=ROOT         HEAD=released (i=15)
+   16 .                    POS=PUNCT  DEP=punct        HEAD=released (i=15)
+
+
+--- CORRUPTED ---
+Sentence: The report on the impact of climate change on agricultural productivity in developing nations released.
+    0 The                  POS=DET    DEP=det          HEAD=report (i=1)
+    1 report               POS=NOUN   DEP=nsubj        HEAD=released (i=14)
+    2 on                   POS=ADP    DEP=prep         HEAD=report (i=1)
+    3 the                  POS=DET    DEP=det          HEAD=impact (i=4)
+    4 impact               POS=NOUN   DEP=pobj         HEAD=on (i=2)
+    5 of                   POS=ADP    DEP=prep         HEAD=impact (i=4)
+    6 climate              POS=NOUN   DEP=compound     HEAD=change (i=7)
+    7 change               POS=NOUN   DEP=pobj         HEAD=of (i=5)
+    8 on                   POS=ADP    DEP=prep         HEAD=impact (i=4)
+    9 agricultural         POS=ADJ    DEP=amod         HEAD=productivity (i=10)
+   10 productivity         POS=NOUN   DEP=pobj         HEAD=on (i=8)
+   11 in                   POS=ADP    DEP=prep         HEAD=productivity (i=10)
+   12 developing           POS=VERB   DEP=amod         HEAD=nations (i=13)
+   13 nations              POS=NOUN   DEP=pobj         HEAD=in (i=11)
+   14 released             POS=VERB   DEP=ROOT         HEAD=released (i=14)
+   15 .                    POS=PUNCT  DEP=punct        HEAD=released (i=14)
+
+
+================================================================================
+Case: high_10_amod_clean (none)
+================================================================================
+
+--- CLEAN ---
+Sentence: The newly appointed chief financial officer presented the thoroughly revised quarterly earnings report.
+    0 The                  POS=DET    DEP=det          HEAD=officer (i=5)
+    1 newly                POS=ADV    DEP=advmod       HEAD=appointed (i=2)
+    2 appointed            POS=VERB   DEP=amod         HEAD=officer (i=5)
+    3 chief                POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    4 financial            POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    5 officer              POS=NOUN   DEP=nsubj        HEAD=presented (i=6)
+    6 presented            POS=VERB   DEP=ROOT         HEAD=presented (i=6)
+    7 the                  POS=DET    DEP=det          HEAD=report (i=12)
+    8 thoroughly           POS=ADV    DEP=advmod       HEAD=revised (i=9)
+    9 revised              POS=VERB   DEP=amod         HEAD=report (i=12)
+   10 quarterly            POS=ADJ    DEP=amod         HEAD=report (i=12)
+   11 earnings             POS=NOUN   DEP=compound     HEAD=report (i=12)
+   12 report               POS=NOUN   DEP=dobj         HEAD=presented (i=6)
+   13 .                    POS=PUNCT  DEP=punct        HEAD=presented (i=6)
+
+
+--- CORRUPTED ---
+Sentence: The newly appointed chief financial officer presented the thoroughly revised quarterly earnings report.
+    0 The                  POS=DET    DEP=det          HEAD=officer (i=5)
+    1 newly                POS=ADV    DEP=advmod       HEAD=appointed (i=2)
+    2 appointed            POS=VERB   DEP=amod         HEAD=officer (i=5)
+    3 chief                POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    4 financial            POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    5 officer              POS=NOUN   DEP=nsubj        HEAD=presented (i=6)
+    6 presented            POS=VERB   DEP=ROOT         HEAD=presented (i=6)
+    7 the                  POS=DET    DEP=det          HEAD=report (i=12)
+    8 thoroughly           POS=ADV    DEP=advmod       HEAD=revised (i=9)
+    9 revised              POS=VERB   DEP=amod         HEAD=report (i=12)
+   10 quarterly            POS=ADJ    DEP=amod         HEAD=report (i=12)
+   11 earnings             POS=NOUN   DEP=compound     HEAD=report (i=12)
+   12 report               POS=NOUN   DEP=dobj         HEAD=presented (i=6)
+   13 .                    POS=PUNCT  DEP=punct        HEAD=presented (i=6)
+
+
+================================================================================
+Case: high_11_amod_error (adjective_form)
+================================================================================
+
+--- CLEAN ---
+Sentence: The newly appointed chief financial officer presented the thoroughly revised quarterly earnings report.
+    0 The                  POS=DET    DEP=det          HEAD=officer (i=5)
+    1 newly                POS=ADV    DEP=advmod       HEAD=appointed (i=2)
+    2 appointed            POS=VERB   DEP=amod         HEAD=officer (i=5)
+    3 chief                POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    4 financial            POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    5 officer              POS=NOUN   DEP=nsubj        HEAD=presented (i=6)
+    6 presented            POS=VERB   DEP=ROOT         HEAD=presented (i=6)
+    7 the                  POS=DET    DEP=det          HEAD=report (i=12)
+    8 thoroughly           POS=ADV    DEP=advmod       HEAD=revised (i=9)
+    9 revised              POS=VERB   DEP=amod         HEAD=report (i=12)
+   10 quarterly            POS=ADJ    DEP=amod         HEAD=report (i=12)
+   11 earnings             POS=NOUN   DEP=compound     HEAD=report (i=12)
+   12 report               POS=NOUN   DEP=dobj         HEAD=presented (i=6)
+   13 .                    POS=PUNCT  DEP=punct        HEAD=presented (i=6)
+
+
+--- CORRUPTED ---
+Sentence: The new appointed chief financial officer presented the thorough revised quarterly earnings report.
+    0 The                  POS=DET    DEP=det          HEAD=officer (i=5)
+    1 new                  POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    2 appointed            POS=VERB   DEP=amod         HEAD=officer (i=5)
+    3 chief                POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    4 financial            POS=ADJ    DEP=amod         HEAD=officer (i=5)
+    5 officer              POS=NOUN   DEP=nsubj        HEAD=presented (i=6)
+    6 presented            POS=VERB   DEP=ROOT         HEAD=presented (i=6)
+    7 the                  POS=DET    DEP=det          HEAD=report (i=12)
+    8 thorough             POS=ADJ    DEP=amod         HEAD=report (i=12)
+    9 revised              POS=VERB   DEP=amod         HEAD=report (i=12)
+   10 quarterly            POS=ADJ    DEP=amod         HEAD=report (i=12)
+   11 earnings             POS=NOUN   DEP=compound     HEAD=report (i=12)
+   12 report               POS=NOUN   DEP=dobj         HEAD=presented (i=6)
+   13 .                    POS=PUNCT  DEP=punct        HEAD=presented (i=6)
+
