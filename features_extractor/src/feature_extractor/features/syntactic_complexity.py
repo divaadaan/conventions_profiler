@@ -2,7 +2,7 @@
 
 import statistics
 
-from conventions_profiler.models import Essay
+from feature_extractor.models import Essay
 
 
 def _safe_mean(values: list[float], default: float = 0.0) -> float:

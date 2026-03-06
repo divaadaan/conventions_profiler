@@ -5,8 +5,8 @@ import logging
 
 import language_tool_python as ltp
 
-from conventions_profiler.models import Essay
-from conventions_profiler.passes.base import BasePass
+from feature_extractor.models import Essay
+from feature_extractor.passes.base import BasePass
 
 logger = logging.getLogger(__name__)
 

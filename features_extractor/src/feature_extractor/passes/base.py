@@ -2,7 +2,7 @@
 
 from abc import ABC, abstractmethod
 
-from conventions_profiler.models import Essay
+from feature_extractor.models import Essay
 
 
 class BasePass(ABC):

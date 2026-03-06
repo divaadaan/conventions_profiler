@@ -1,0 +1,62 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "feature-extractor"
+version = "0.1.0"
+description = "Linguistic feature extraction pipeline for conventions scoring in automated essay scoring."
+requires-python = ">=3.12"
+dependencies = [
+    "spacy>=3.7,<4.0",
+    "language-tool-python>=2.7",
+    "pyspellchecker>=0.7",
+    "pandas>=2.1",
+    "pyarrow>=14.0",
+    "numpy>=1.26",
+    "pyyaml>=6.0",
+    "pydantic>=2.5",
+    "tqdm>=4.66",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.4",
+    "pytest-cov>=4.1",
+    "ruff>=0.1",
+    "mypy>=1.7",
+    "jupyter>=1.0",
+    "matplotlib>=3.8",
+    "seaborn>=0.13",
+    "scipy>=1.11",
+]
+gpu = [
+    "spacy[cuda12x]>=3.7,<4.0",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+include = ["feature_extractor*"]
+
+[tool.setuptools.package-data]
+feature_extractor = ["config/*.yaml"]
+
+[project.scripts]
+feature-extractor = "feature_extractor.cli:main"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
+addopts = "-v --tb=short"
+
+[tool.mypy]
+python_version = "3.12"
+warn_return_any = true
+warn_unused_configs = true

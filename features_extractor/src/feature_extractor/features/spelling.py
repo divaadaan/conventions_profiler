@@ -2,7 +2,7 @@
 
 from spellchecker import SpellChecker
 
-from conventions_profiler.models import Essay
+from feature_extractor.models import Essay
 
 # POS tags for content words (carry semantic meaning)
 CONTENT_POS = {"NOUN", "PROPN", "VERB", "ADJ", "ADV"}

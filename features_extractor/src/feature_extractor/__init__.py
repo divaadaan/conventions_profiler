@@ -1,6 +1,6 @@
 """
-conventions-profiler
-====================
+feature-extractor
+==================
 
 Linguistic feature extraction pipeline for conventions scoring in AES.
 

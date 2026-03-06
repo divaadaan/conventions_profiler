@@ -3,7 +3,7 @@
 import numpy as np
 import pandas as pd
 
-from conventions_profiler.features.registry import FEATURE_REGISTRY
+from feature_extractor.features.registry import FEATURE_REGISTRY
 
 
 def _quartile_banding(

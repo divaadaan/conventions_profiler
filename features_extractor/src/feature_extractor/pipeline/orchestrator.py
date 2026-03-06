@@ -6,18 +6,18 @@ from pathlib import Path
 
 from tqdm import tqdm
 
-from conventions_profiler.models import Essay
-from conventions_profiler.features.aggregation import compute_aggregation_features
-from conventions_profiler.features.dependency import compute_dependency_features
-from conventions_profiler.features.error_severity import compute_error_severity_features
-from conventions_profiler.features.punctuation import compute_punctuation_features
-from conventions_profiler.features.spelling import compute_spelling_features
-from conventions_profiler.features.syntactic_complexity import compute_syntactic_complexity_features
-from conventions_profiler.features.registry import get_enabled_features, get_required_modules
-from conventions_profiler.passes.base import BasePass
-from conventions_profiler.passes.languagetool_pass import LanguageToolPass
-from conventions_profiler.passes.spacy_pass import SpacyPass
-from conventions_profiler.pipeline.checkpoint import (
+from feature_extractor.models import Essay
+from feature_extractor.features.aggregation import compute_aggregation_features
+from feature_extractor.features.dependency import compute_dependency_features
+from feature_extractor.features.error_severity import compute_error_severity_features
+from feature_extractor.features.punctuation import compute_punctuation_features
+from feature_extractor.features.spelling import compute_spelling_features
+from feature_extractor.features.syntactic_complexity import compute_syntactic_complexity_features
+from feature_extractor.features.registry import get_enabled_features, get_required_modules
+from feature_extractor.passes.base import BasePass
+from feature_extractor.passes.languagetool_pass import LanguageToolPass
+from feature_extractor.passes.spacy_pass import SpacyPass
+from feature_extractor.pipeline.checkpoint import (
     load_checkpoint,
     load_partial_checkpoint,
     save_checkpoint_incremental,

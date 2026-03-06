@@ -1,4 +1,4 @@
-# conventions-profiler
+# feature-extractor
 
 Linguistic feature extraction pipeline for conventions scoring in automated essay scoring. Extracts psycholinguistically motivated features from student essay texts — dependency complexity, syntactic structure, punctuation usage, error severity, and spelling. Outputs a feature matrix suitable for scoring model training or cut-point derivation.
 
@@ -12,10 +12,10 @@ Go to [pytorch.org/get-started/locally](https://pytorch.org/get-started/locally)
 pip install torch --index-url https://download.pytorch.org/whl/cu124
 ```
 
-Then install this package and download the spaCy model:
+Then install this package from the repo root and download the spaCy model:
 
 ```bash
-pip install -e ".[dev]"
+pip install -e "features_extractor/[dev]"
 python -m spacy download en_core_web_trf
 ```
 
@@ -23,10 +23,10 @@ LanguageTool requires a Java runtime (JRE 8+). The `language-tool-python` depend
 
 ## Setting Up a New Dataset
 
-Start by copying the default configuration to your project root:
+Start by copying the default configuration to the `features_extractor` directory:
 
 ```bash
-cp src/conventions_profiler/config/default.yaml config.yaml
+cp features_extractor/src/feature_extractor/config/default.yaml features_extractor/config.yaml
 ```
 
 This is your working config file. The values in `config.yaml` override the defaults baked into the Pydantic schema (`config/schemas.py`), so anything you set here is the ground truth for pipeline behaviour. The sections below walk through what to adjust.
@@ -116,10 +116,11 @@ The feature registry (`features/registry.py`) defines the full set of available 
 
 ## Running the Pipeline
 
-Run extraction:
+Run extraction from the `features_extractor` directory:
 
 ```bash
-conventions-profiler --config config.yaml
+cd features_extractor
+feature-extractor --config config.yaml
 ```
 
 Useful flags:
@@ -151,19 +152,19 @@ Features are grouped into six modules: `dependency`, `syntactic_complexity`, `pu
 Analysis is a separate step that runs after extraction. Use the `--analyze` flag to include it:
 
 ```bash
-conventions-profiler --config config.yaml --analyze
+feature-extractor --config config.yaml --analyze
 ```
 
 The `--consistency` flag controls how strict cross-prompt filtering is. With 6 prompts (e.g. ASAP++), 0.75 requires significance in 5/6. With 44 prompts, it requires 33/44. Raise it for stricter filtering or lower it to retain more features:
 
 ```bash
-conventions-profiler --config config.yaml --analyze --consistency 0.80
+feature-extractor --config config.yaml --analyze --consistency 0.80
 ```
 
 Alternatively, run it from the notebook at `analysis/analysis.ipynb`, or call the runner directly:
 
 ```python
-from conventions_profiler.analysis.runner import run_validation_pipeline
+from feature_extractor.analysis.runner import run_validation_pipeline
 
 results = run_validation_pipeline(
     feature_matrix_path="cache/feature_matrix.parquet",

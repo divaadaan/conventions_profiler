@@ -5,9 +5,9 @@ from pathlib import Path
 
 import pandas as pd
 
-from conventions_profiler.analysis.validation import run_full_analysis, cross_prompt_ranking
-from conventions_profiler.analysis.correlation import prune_correlated_features
-from conventions_profiler.analysis.cut_points import compute_cut_points
+from feature_extractor.analysis.validation import run_full_analysis, cross_prompt_ranking
+from feature_extractor.analysis.correlation import prune_correlated_features
+from feature_extractor.analysis.cut_points import compute_cut_points
 
 logger = logging.getLogger(__name__)
 

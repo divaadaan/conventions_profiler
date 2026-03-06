@@ -1,5 +1,5 @@
 """
-Configuration schema and loader for the conventions profiler pipeline.
+Configuration schema and loader for the feature extractor pipeline.
 
 Loads from YAML, validates with pydantic, and resolves hardware settings.
 """
@@ -67,7 +67,7 @@ class ColumnMapping(BaseModel):
 
 
 class DatasetConfig(BaseModel):
-    path: str = "./src/conventions_profiler/data/YOUR-PROCESSED-DATA-PATH.csv"
+    path: str = "./src/feature_extractor/data/YOUR-PROCESSED-DATA-PATH.csv"
     columns: ColumnMapping = Field(default_factory=ColumnMapping)
 
 

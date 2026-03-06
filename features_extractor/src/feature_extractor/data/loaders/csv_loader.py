@@ -5,7 +5,7 @@ from pathlib import Path
 
 import pandas as pd
 
-from conventions_profiler.models import Essay
+from feature_extractor.models import Essay
 
 logger = logging.getLogger(__name__)
 

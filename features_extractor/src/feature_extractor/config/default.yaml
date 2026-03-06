@@ -16,12 +16,12 @@ cache:
   checkpoint_chunk_size: 500  # essays per checkpoint increment
 
 dataset:
-  path: "./src/conventions_profiler/data/processed/merged_essays.csv"
+  path: "./src/feature_extractor/data/YOUR-PROCESSED-DATA-PATH.csv"
   columns:
     essay_id: "essay_id"
-    text: "essay"
-    score: "language"
-    prompt_id: "essay_set"
+    text: "text"
+    score: "score"
+    prompt_id: "prompt_id"
 
 features:
   #add specific override defaults here, ie
@@ -31,5 +31,5 @@ features:
 
 scoring:
   score_min: 0.0
-  score_max: 5.0
+  score_max: 1.0
   normalise: false

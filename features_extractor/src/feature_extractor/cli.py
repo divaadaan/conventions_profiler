@@ -1,10 +1,10 @@
 """
-Main entry point for the conventions profiler pipeline.
+Main entry point for the feature extractor pipeline.
 
 Usage:
-    python -m conventions_profiler.main --config config/default.yaml
-    python -m conventions_profiler.main --config config/default.yaml --force
-    python -m conventions_profiler.main --limit 50
+    python -m feature_extractor.main --config config/default.yaml
+    python -m feature_extractor.main --config config/default.yaml --force
+    python -m feature_extractor.main --limit 50
 """
 
 import argparse
@@ -13,10 +13,10 @@ from pathlib import Path
 
 import pandas as pd
 
-from conventions_profiler.config.schemas import load_config
-from conventions_profiler.data.loaders.csv_loader import load_dataset
-from conventions_profiler.pipeline.orchestrator import Orchestrator
-from conventions_profiler.analysis.runner import run_validation_pipeline
+from feature_extractor.config.schemas import load_config
+from feature_extractor.data.loaders.csv_loader import load_dataset
+from feature_extractor.pipeline.orchestrator import Orchestrator
+from feature_extractor.analysis.runner import run_validation_pipeline
 
 logging.basicConfig(
     level=logging.INFO,
@@ -45,7 +45,7 @@ def essays_to_dataframe(essays) -> pd.DataFrame:
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Conventions Profiler Pipeline")
+    parser = argparse.ArgumentParser(description="Feature Extractor Pipeline")
     parser.add_argument(
         "--config", type=str, default="config/default.yaml",
         help="Path to configuration YAML file",
@@ -78,7 +78,7 @@ def main():
 
     config = load_config(args.config)
     if args.all_features:
-        from conventions_profiler.features.registry import FEATURE_REGISTRY
+        from feature_extractor.features.registry import FEATURE_REGISTRY
         config.features.overrides = {name: True for name in FEATURE_REGISTRY}
     config_dict = config.model_dump()
     device = config.hardware.resolve_device()

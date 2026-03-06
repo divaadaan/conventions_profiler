@@ -1,7 +1,7 @@
 """Error severity features implementing the global/local error framework.
 The severity tiers and weights are defaults validated against the training corpus and can be adjsuted."""
 
-from conventions_profiler.models import Essay
+from feature_extractor.models import Essay
 
 #Severity tier mappings
 GLOBAL_CATEGORIES = {
