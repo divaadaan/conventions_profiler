@@ -1,0 +1,32 @@
+hardware:
+  device: "auto"
+  batch_size: 16
+
+models:
+  spacy:
+    model: "en_core_web_trf"
+  languagetool:
+    server_port: 8081
+    language: "en-CA"
+
+cache:
+  enabled: true
+  directory: "./synthetic_cache"
+  format: "parquet"
+  checkpoint_chunk_size: 500
+
+dataset:
+  path: "../augmentation/output/synthetic_for_extraction.csv"
+  columns:
+    essay_id: "essay_id"
+    text: "text"
+    score: "score"
+    prompt_id: "prompt_id"
+
+features:
+  overrides: {}
+
+scoring:
+  score_min: 0
+  score_max: 40
+  normalize: false

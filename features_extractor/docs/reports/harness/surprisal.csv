@@ -1,0 +1,5 @@
+case_id,tier,description,text,feat_surp_mean_per_word,feat_surp_perplexity,feat_surp_p95_per_word,feat_surp_std_per_word,feat_surp_sentence_mean_max,feat_surp_sentence_mean_std
+surp_fluent_01,clean,Short fluent sentences with common vocabulary.,The cat sat on the mat. The dog ran in the park. We had fun all day.,7.565826416015625,189.47010387182428,14.36181640625,4.51648073509053,8.95517578125,1.0281773352437271
+surp_garbled_01,severe,Nonsense / OOV-heavy text. Expect very high mean surprisal.,"xqz blorpf the ungainly meeple frumiously bunkpfed. Plonkward grambit, plonkward grambit, fnxqz!",28.97952547940341,529305527.60687137,45.1337890625,14.51209035583068,30.548421223958332,1.7257853190104164
+surp_single_word_01,parse_distortion,"Single sentence, very few tokens — must not crash.",Hello.,0.0,0.0,0.0,0.0,0.0,0.0
+surp_empty_01,parse_distortion,Empty text — all aggregates default to zero.,,0.0,0.0,0.0,0.0,0.0,0.0

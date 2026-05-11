@@ -1,0 +1,14 @@
+kept,dropped,correlation,kept_strength,dropped_strength
+agg_errors_per_sentence_mean,agg_worst_window_3_mean,0.993,0.428,0.39
+spell_misspelled_ratio,spell_misspelled_count,0.969,0.2,0.145
+agg_errors_per_sentence_stdev,agg_errors_per_sentence_max,0.948,0.334,0.282
+err_total_density,err_weighted_density,0.945,0.457,0.421
+agg_error_free_sentence_ratio,agg_error_concentration,0.933,0.338,0.291
+agg_errors_per_sentence_stdev,agg_worst_window_3_errors,0.928,0.334,0.268
+agg_errors_per_sentence_mean,agg_errors_per_sentence_stdev,0.924,0.428,0.334
+agg_errors_per_sentence_mean,agg_error_free_sentence_ratio,0.92,0.428,0.338
+err_total_density,err_local_density,0.899,0.457,0.361
+spell_misspelled_ratio,spell_content_word_errors,0.883,0.2,0.12
+err_local_count,err_total_count,0.875,0.282,0.183
+err_medium_density,err_medium_count,0.869,0.093,0.013
+err_total_density,agg_errors_per_sentence_mean,0.86,0.457,0.428

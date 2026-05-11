@@ -1,0 +1,35 @@
+hardware:
+  device: "auto"
+  batch_size: 16
+
+models:
+  spacy:
+    model: "en_core_web_trf"
+  languagetool:
+    server_port: 8081
+    language: "en-CA"
+  surprisal:
+    enabled: true
+    model: "EleutherAI/pythia-70m"
+
+cache:
+  enabled: true
+  directory: "./cache_prompt7"
+  format: "parquet"
+  checkpoint_chunk_size: 500
+
+dataset:
+  path: "./src/feature_extractor/data/processed/asap-prompt-7.csv"
+  columns:
+    essay_id: "essay_id"
+    text: "essay"
+    score: "conventions-rater1"
+    prompt_id: "essay_set"
+
+features:
+  overrides: {}
+
+scoring:
+  score_min: 0.0
+  score_max: 1.0
+  normalize: false

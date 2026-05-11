@@ -1,0 +1,921 @@
+# Curriculum → Detector Mapping (PARTIAL DRAFT — capitalization + punctuation only)
+#
+# Purpose: For each curriculum item, list the detectors (LanguageTool rule IDs,
+# spaCy-derived signals, or planned new features) that catch errors against that
+# concept. Used to (a) audit gaps in current detection coverage, and (b) re-weight
+# error severity tiers using curriculum levels.
+#
+# Format per item:
+#   - id: stable identifier (snake_case)
+#     curriculum_item: human-readable name
+#     example: short example from curriculum
+#     level: low | medium | high   (developmental stage)
+#     detectors:
+#       - type: lt_rule | lt_category | spacy_signal | new_feature
+#         id: rule_id / category / feature_name
+#         confidence: high | medium | low   (how reliably this detector fires for this item)
+#         notes: optional commentary
+#     gap: true | false   (true = no current detector, marks new feature work)
+#     locale_notes: any en-CA vs en-US differences
+
+version: 0.1-draft
+locale: en-CA
+status: partial-draft
+
+capitalization:
+  - id: cap_sentence_initial
+    curriculum_item: Capital letters at start of sentences
+    example: "We walked to the park this morning."
+    level: low
+    detectors:
+      - type: lt_rule
+        id: UPPERCASE_SENTENCE_START
+        confidence: high
+        notes: Direct rule, fires reliably on lowercase sentence-initial.
+      - type: new_feature
+        id: cap_sentence_initial_rate
+        confidence: high
+        notes: Planned. Iterate sentences from spaCy pass, check first alpha token's text[0].isupper().
+    gap: false
+
+  - id: cap_proper_noun
+    curriculum_item: Capital letters for proper nouns
+    example: "My family travelled from Brantford to Toronto by train."
+    level: medium
+    detectors:
+      - type: lt_category
+        id: CASING
+        confidence: medium
+        notes: CASING category catches some proper-noun errors but is broad.
+      - type: new_feature
+        id: cap_proper_noun_rate
+        confidence: high
+        notes: Planned. spaCy NER + PROPN tagging gives proper noun spans; check capitalization.
+    gap: false
+
+  - id: cap_proper_adjective
+    curriculum_item: Capitals for proper adjectives
+    example: "They like to eat Indian, Korean, and Japanese food."
+    level: high
+    detectors:
+      - type: lt_category
+        id: CASING
+        confidence: low
+        notes: Limited LT coverage for proper adjectives specifically.
+    gap: true
+    notes: Possible new feature; spaCy NER on adjectival use of nationality/place terms.
+
+  - id: cap_dialogue
+    curriculum_item: Capital letters in dialogue
+    example: "The woman exclaimed, 'We are so happy that you enjoyed your day.'"
+    level: high
+    detectors: []
+    gap: true
+    notes: No reliable detector. Would require quotation-aware sentence segmentation.
+
+  - id: cap_titles
+    curriculum_item: Capitals for words in titles
+    example: "The book was called The Journey across Canada."
+    level: medium
+    detectors: []
+    gap: true
+    notes: Title detection is hard without explicit markup. Out of scope for now.
+
+  - id: cap_intrusion
+    curriculum_item: Mid-sentence unexpected capitals (negative inverse signal)
+    example: "i went to the Park yesterday."
+    level: low
+    detectors:
+      - type: new_feature
+        id: cap_intrusion_rate
+        confidence: medium
+        notes: Planned. Mid-sentence tokens with uppercase that aren't proper nouns or sentence-initial.
+    gap: false
+
+punctuation:
+  - id: punct_terminal
+    curriculum_item: Punctuation marks at end of sentences
+    example: "The weather is cloudy."
+    level: low
+    detectors:
+      - type: spacy_signal
+        id: sentence.last_alpha_token followed by terminal punct
+        confidence: high
+        notes: Check final token of each spaCy sentence span for . ! ?
+      - type: new_feature
+        id: bound_missing_term_punct_count
+        confidence: high
+        notes: Planned. Part of sentence boundary composite.
+    gap: false
+
+  - id: punct_comma_lists
+    curriculum_item: Commas to separate items in lists
+    example: "I like to skate, sled, and snowshoe in the winter."
+    level: medium
+    detectors:
+      - type: lt_rule
+        id: SERIAL_COMMA
+        confidence: medium
+        notes: Detects missing/extra serial comma. en-CA may differ from en-US.
+      - type: lt_category
+        id: PUNCTUATION
+        confidence: low
+    gap: false
+    locale_notes: SERIAL_COMMA convention differs en-CA vs en-US.
+
+  - id: punct_apostrophe_possessive
+    curriculum_item: Apostrophes for possessives
+    example: "Ira's sister was late to meet him for lunch"
+    level: medium
+    detectors:
+      - type: lt_rule
+        id: POSSESSIVE_APOSTROPHE
+        confidence: medium
+      - type: lt_rule
+        id: PLURAL_APOSTROPHE
+        confidence: medium
+    gap: false
+
+  - id: punct_quotes_direct_speech
+    curriculum_item: Quotation marks for direct speech
+    example: 'Maia said, "I am busy now."'
+    level: medium
+    detectors:
+      - type: lt_rule
+        id: EN_UNPAIRED_QUOTES
+        confidence: medium
+        notes: Catches mismatched quotes but not missing quotes around speech.
+    gap: false
+    notes: Detection of *missing* quotes around speech is largely a gap.
+
+  - id: punct_quotes_titles
+    curriculum_item: Quotes for title of short work
+    example: '"The Peaceful Day" is a short story.'
+    level: high
+    detectors: []
+    gap: true
+
+  - id: punct_apostrophe_contractions
+    curriculum_item: Apostrophes for contractions
+    example: "It's a nice day outside."
+    level: medium
+    detectors:
+      - type: lt_rule
+        id: EN_CONTRACTION_SPELLING
+        confidence: high
+      - type: lt_rule
+        id: ITS_IT_S
+        confidence: high
+    gap: false
+
+  - id: punct_comma_direct_address
+    curriculum_item: Commas for nouns of direct address
+    example: "Dad, where is my baseball bat?"
+    level: high
+    detectors:
+      - type: lt_category
+        id: PUNCTUATION
+        confidence: low
+    gap: true
+    notes: Likely under-covered. Vocative comma detection is tricky.
+
+  - id: punct_comma_appositives
+    curriculum_item: Commas for appositives/participles
+    example: "The store owner, who sells fruit and vegetables, has one child."
+    level: high
+    detectors:
+      - type: lt_category
+        id: PUNCTUATION
+        confidence: low
+    gap: true
+    notes: "Could be addressed via spaCy: detect appositive (appos) or participial (acl) modifiers and check comma boundaries."
+
+  - id: punct_colon_lists
+    curriculum_item: Colons for introducing lists
+    example: "There were many colours in the painting: red, purple, and green."
+    level: high
+    detectors: []
+    gap: true
+
+  - id: punct_colon_formal
+    curriculum_item: Colons in formal letters/memos
+    example: "To whom it may concern:"
+    level: high
+    detectors: []
+    gap: true
+
+  - id: punct_comma_transitional
+    curriculum_item: Commas after transitional words
+    example: "Lastly, you place the taco on the plate."
+    level: high
+    detectors:
+      - type: lt_rule
+        id: COMMA_AFTER_INTRODUCTORY_PHRASE
+        confidence: medium
+    gap: false
+
+  - id: punct_semicolon_indep
+    curriculum_item: Semicolons for independent clauses
+    example: "I went to the market; I forgot to buy corn soup."
+    level: high
+    detectors: []
+    gap: true
+
+  - id: punct_comma_conjunctive_adverb
+    curriculum_item: Commas to set off conjunctive adverbs
+    example: "Your dog got into the neighbour's yard; in addition, he dug up the flowers."
+    level: high
+    detectors: []
+    gap: true
+
+  - id: punct_ellipses_dashes
+    curriculum_item: Ellipses or dashes for pauses/breaks
+    example: "Yesterday he enrolled...in art instead of music."
+    level: high
+    detectors: []
+    gap: true
+    notes: Stylistic — not necessarily an error to grade against.
+
+syntax:
+  # ---- Simple sentence types (Low) ----
+  # Curriculum items here are about USE rather than misuse. Errors in simple-sentence
+  # construction generally surface as fragments or missing terminal punctuation, both
+  # already covered by sentence boundary detectors. Use-rate features (planned)
+  # measure compositional variety.
+  - id: syn_simple_declarative
+    curriculum_item: "Simple sentences: declarative"
+    example: "The dog barks loudly all day."
+    level: low
+    detectors:
+      - type: new_feature
+        id: syn_simple_sent_rate
+        confidence: medium
+        notes: "Use-rate. Composite simple-sentence count includes all four moods."
+      - type: spacy_signal
+        id: single ROOT verb + no clausal subordination
+        confidence: medium
+    gap: false
+
+  - id: syn_simple_imperative
+    curriculum_item: "Simple sentences: imperative"
+    example: "Please turn on the water."
+    level: low
+    detectors:
+      - type: new_feature
+        id: syn_simple_sent_rate
+        confidence: low
+        notes: "Imperative detection requires zero subject + base-form verb at sentence start; not currently isolated."
+    gap: false
+
+  - id: syn_simple_interrogative
+    curriculum_item: "Simple sentences: interrogative"
+    example: "Where is the library book on structures?"
+    level: low
+    detectors:
+      - type: spacy_signal
+        id: terminal '?' + WH-word or aux-fronting
+        confidence: medium
+    gap: false
+
+  - id: syn_simple_exclamatory
+    curriculum_item: "Simple sentences: exclamatory"
+    example: "I am excited and happy to see my friend!"
+    level: low
+    detectors:
+      - type: spacy_signal
+        id: terminal '!'
+        confidence: high
+    gap: false
+
+  # ---- Compound / complex / compound-complex sentence types (High) ----
+  - id: syn_compound
+    curriculum_item: Compound sentences
+    example: "Sherice sings in a band and sometimes she plays drums."
+    level: high
+    detectors:
+      - type: new_feature
+        id: syn_compound_sent_rate
+        confidence: medium
+        notes: "Use-rate. spaCy: two ROOTs joined by coordinating conjunction (cc + conj)."
+    gap: false
+
+  - id: syn_complex
+    curriculum_item: Complex sentences
+    example: "It is freezing outside because it is winter."
+    level: high
+    detectors:
+      - type: new_feature
+        id: syn_complex_sent_rate
+        confidence: medium
+        notes: "Use-rate. spaCy: ROOT + at least one mark/advcl/relcl/ccomp dependent."
+    gap: false
+
+  - id: syn_complex_advcl
+    curriculum_item: Complex sentences with adverbial clauses
+    example: "While Aamer is a big fan of soccer, he prefers cricket."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: advcl dependency present
+        confidence: high
+        notes: Already extracted in spacy_pass mdd_by_type.
+      - type: new_feature
+        id: syn_advcl_rate
+        confidence: high
+    gap: false
+
+  - id: syn_complex_relcl
+    curriculum_item: Complex sentences with adjective or relative clauses
+    example: "The crowd, who looked happy, danced across the street."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: relcl dependency present
+        confidence: high
+      - type: new_feature
+        id: syn_relcl_rate
+        confidence: high
+    gap: false
+
+  - id: syn_complex_prep
+    curriculum_item: Complex sentences with prepositional clauses
+    example: "While we were playing football, the ball thrown by my friend went into the lake."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: prep dependency present
+        confidence: medium
+        notes: "Note: spaCy 'prep' is preposition heads, not 'prepositional clauses' as the curriculum frames them. Curriculum item likely conflates prepositional phrases with reduced clauses; mapping is approximate."
+    gap: false
+
+  - id: syn_compound_complex
+    curriculum_item: Compound-complex sentences
+    example: "Since Mykola is allergic to wheat, he could not have the rolls he made, but he could have the soup."
+    level: high
+    detectors:
+      - type: new_feature
+        id: syn_compound_complex_sent_rate
+        confidence: medium
+        notes: "Use-rate. spaCy: multiple ROOTs joined by cc/conj AND at least one mark/advcl/relcl dependent."
+    gap: false
+
+  # ---- Clauses (independent/dependent) ----
+  - id: syn_indep_clauses
+    curriculum_item: Independent clauses
+    example: "Swati reads articles, and Hong enjoys novels."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: ROOT verb + nsubj count
+        confidence: high
+    gap: false
+
+  - id: syn_dep_clauses
+    curriculum_item: Dependent clauses
+    example: "After Nagamo wrote her first novel last year, she decided to write a second novel."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: mark/advcl/ccomp/xcomp/acl/relcl dependents
+        confidence: high
+    gap: false
+
+  # ---- Sentence boundary errors (the spec's main syntax target) ----
+  - id: syn_fragments_runons
+    curriculum_item: Sentence fragments and run-on sentences
+    example: "(curriculum lists no positive example; assessed by errors)"
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: dep_fragment_count
+        confidence: high
+        notes: "Existing feature: sentence has ROOT verb but no nsubj."
+      - type: lt_rule
+        id: COMMA_COMPOUND_SENTENCE
+        confidence: high
+        notes: Comma splice / run-on indicator.
+      - type: lt_rule
+        id: COMMA_COMPOUND_SENTENCE_2
+        confidence: high
+      - type: new_feature
+        id: bound_boundary_error_rate
+        confidence: high
+        notes: "Planned composite: missing terminal punct + comma splices + fragments / num_sentences."
+      - type: new_feature
+        id: err_simple_sent_error_rate
+        confidence: medium
+      - type: new_feature
+        id: err_complex_sent_error_rate
+        confidence: medium
+    gap: false
+
+grammar:
+  # ---- Nouns ----
+  # Common/singular/plural noun USE is implicit; errors typically surface as agreement
+  # mismatches or article problems. Concept-level "did the student use plurals correctly"
+  # is partly covered by SV agreement and noun-determiner rules.
+  - id: gr_common_nouns
+    curriculum_item: Common nouns
+    example: "firefighter, drum, park"
+    level: low
+    detectors:
+      - type: spacy_signal
+        id: POS=NOUN tagging
+        confidence: high
+        notes: "Use-detection only; no error pattern unique to 'common nouns' as a category."
+    gap: false
+
+  - id: gr_singular_nouns
+    curriculum_item: Singular nouns
+    example: "teacher, eraser, notebook"
+    level: low
+    detectors:
+      - type: lt_rule
+        id: HE_VERB_AGR
+        confidence: medium
+        notes: SV agreement catches some singular-noun errors.
+      - type: lt_rule
+        id: PEOPLE_VBZ
+        confidence: medium
+    gap: false
+
+  - id: gr_plural_nouns
+    curriculum_item: Plural nouns
+    example: "students, desks, berries"
+    level: low
+    detectors:
+      - type: lt_category
+        id: GRAMMAR
+        confidence: low
+        notes: "Plural mismatches surface in agreement rules; no single dedicated rule."
+    gap: false
+
+  - id: gr_pronoun_i
+    curriculum_item: 'The pronoun "I"'
+    example: "I"
+    level: low
+    detectors:
+      - type: lt_rule
+        id: I_LOWERCASE
+        confidence: high
+        notes: 'LanguageTool rule for lowercase standalone "i". Likely high-fire in student writing.'
+      - type: lt_category
+        id: CASING
+        confidence: medium
+    gap: false
+
+  - id: gr_abstract_nouns
+    curriculum_item: Abstract nouns
+    example: "peace, joy, imagination, reconciliation"
+    level: medium
+    detectors: []
+    gap: true
+    notes: "No error detector exists for misuse of abstract nouns specifically. Would require lexicon-based usage feature; low priority."
+
+  - id: gr_collective_nouns
+    curriculum_item: Collective nouns
+    example: "fleet, bunch, cluster, batch"
+    level: medium
+    detectors:
+      - type: lt_category
+        id: GRAMMAR
+        confidence: low
+        notes: Collective-noun agreement (US vs UK) sometimes flagged; coverage thin.
+    gap: true
+
+  - id: gr_possessive_nouns
+    curriculum_item: Possessive nouns
+    example: "women's, man's, students'"
+    level: medium
+    detectors:
+      - type: lt_rule
+        id: POSSESSIVE_APOSTROPHE
+        confidence: medium
+      - type: lt_rule
+        id: PLURAL_APOSTROPHE
+        confidence: medium
+    gap: false
+
+  - id: gr_direct_objects
+    curriculum_item: Direct objects for nouns
+    example: "They promised the children new bicycles."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: dobj dependency present
+        confidence: high
+    gap: false
+    notes: Use-detection only; missing/misplaced direct objects are largely caught indirectly via SV-agreement and structural rules.
+
+  - id: gr_indirect_objects
+    curriculum_item: Indirect objects
+    example: "They gave me a pencil."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: iobj/dative dependency
+        confidence: medium
+    gap: false
+
+  - id: gr_predicate_nouns
+    curriculum_item: Predicate nouns
+    example: "My favourite hobby is camping."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: attr/acomp dependency on copula
+        confidence: medium
+    gap: false
+
+  - id: gr_gerunds
+    curriculum_item: Gerunds as nouns
+    example: "Running is my favourite summer activity."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: VBG with NOUN-like dependency role (nsubj/dobj)
+        confidence: medium
+    gap: false
+
+  # ---- Pronouns ----
+  - id: gr_pers_pron_subject
+    curriculum_item: "Personal pronouns: subject"
+    example: "you, he, she, it, they, we"
+    level: medium
+    detectors:
+      - type: lt_rule
+        id: PRP_VBZ
+        confidence: medium
+      - type: lt_rule
+        id: PRP_PAST_PART
+        confidence: medium
+    gap: false
+
+  - id: gr_pers_pron_object
+    curriculum_item: "Personal pronouns: object"
+    example: "you, her, him, it, them, us"
+    level: medium
+    detectors:
+      - type: lt_category
+        id: GRAMMAR
+        confidence: medium
+        notes: Object-pronoun case errors (e.g., "between you and I") flagged by various rules.
+    gap: false
+
+  - id: gr_pers_pron_possessive
+    curriculum_item: "Personal pronouns: possessive"
+    example: "my, mine, your, yours, their, theirs, our, ours"
+    level: medium
+    detectors:
+      - type: lt_rule
+        id: YOUR_YOU_RE
+        confidence: high
+      - type: lt_rule
+        id: THEIR_IS
+        confidence: high
+      - type: lt_rule
+        id: ITS_TO_IT_S
+        confidence: high
+    gap: false
+
+  - id: gr_pron_as_adj
+    curriculum_item: Pronouns as adjectives
+    example: "Neither came at the time of the meeting."
+    level: medium
+    detectors: []
+    gap: true
+
+  - id: gr_relative_pron
+    curriculum_item: Relative pronouns
+    example: "The woman who called earlier did not leave a message."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: relcl dependency with relative-pronoun head
+        confidence: high
+      - type: lt_category
+        id: GRAMMAR
+        confidence: medium
+        notes: Who/whom and that/which errors covered by various LT rules.
+    gap: false
+
+  - id: gr_intensive_pron
+    curriculum_item: Intensive pronouns
+    example: "He himself was responsible for his success in sports."
+    level: high
+    detectors: []
+    gap: true
+
+  - id: gr_reflexive_pron
+    curriculum_item: Reflexive pronouns
+    example: "She bought herself a mango."
+    level: high
+    detectors:
+      - type: lt_category
+        id: GRAMMAR
+        confidence: low
+    gap: true
+    notes: Reflexive misuse (e.g., "myself" for "me") sometimes flagged but coverage thin.
+
+  # ---- Verbs and verb forms ----
+  - id: gr_verb_to_be
+    curriculum_item: 'Forms of the verb "to be"'
+    example: "am, are, be, was, being"
+    level: high
+    detectors:
+      - type: lt_rule
+        id: HE_VERB_AGR
+        confidence: high
+      - type: lt_rule
+        id: AGREEMENT_SENT_START
+        confidence: high
+      - type: lt_rule
+        id: SINGULAR_AGREEMENT_SENT_START
+        confidence: high
+      - type: lt_rule
+        id: THE_ARE
+        confidence: medium
+    gap: false
+
+  - id: gr_linking_verbs
+    curriculum_item: Linking verbs
+    example: "to be, to become, to seem"
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: cop dependency
+        confidence: high
+    gap: false
+
+  - id: gr_interrogative_verbs
+    curriculum_item: Interrogative verbs
+    example: "Did you break my favourite toy?"
+    level: high
+    detectors:
+      - type: lt_category
+        id: GRAMMAR
+        confidence: low
+    gap: true
+
+  - id: gr_imperative_verbs
+    curriculum_item: Imperative verbs
+    example: "Place your order in the next five minutes."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: bare-form verb sentence-initial, no nsubj
+        confidence: medium
+    gap: false
+
+  # ---- Tenses ----
+  - id: gr_tense_past
+    curriculum_item: "Verb tense: past"
+    example: "Hiro walked home from school."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: VBD/VBN tagging
+        confidence: high
+      - type: lt_rule
+        id: PRP_PAST_PART
+        confidence: medium
+        notes: Catches some past-participle errors with pronouns.
+    gap: false
+
+  - id: gr_tense_present
+    curriculum_item: "Verb tense: present"
+    example: "Maham draws hearts on all her homework."
+    level: high
+    detectors:
+      - type: lt_rule
+        id: HE_VERB_AGR
+        confidence: high
+      - type: lt_rule
+        id: PEOPLE_VBZ
+        confidence: high
+    gap: false
+
+  - id: gr_tense_future
+    curriculum_item: "Verb tense: future"
+    example: "Chi will write the email after lunch."
+    level: high
+    detectors:
+      - type: lt_rule
+        id: MD_BASEFORM
+        confidence: high
+        notes: 'Modal + non-base form errors (e.g., "will writes").'
+    gap: false
+
+  - id: gr_tense_progressive
+    curriculum_item: Progressive tense
+    example: "He was writing an email when the phone rang."
+    level: medium
+    detectors:
+      - type: spacy_signal
+        id: aux + VBG
+        confidence: high
+    gap: false
+
+  - id: gr_tense_perfect
+    curriculum_item: Perfect tense
+    example: "You have shopped in that store."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: have/has/had + VBN
+        confidence: high
+      - type: lt_rule
+        id: PRP_PAST_PART
+        confidence: medium
+    gap: false
+
+  # ---- Adjectives ----
+  - id: gr_common_adj
+    curriculum_item: Common adjectives
+    example: "bumpy, brown, delicious, brilliant"
+    level: low
+    detectors:
+      - type: spacy_signal
+        id: POS=ADJ tagging
+        confidence: high
+        notes: Use-detection only.
+    gap: false
+
+  - id: gr_comparative_adj
+    curriculum_item: Comparative adjectives
+    example: "She is younger than her brother."
+    level: medium
+    detectors:
+      - type: lt_rule
+        id: COMP_THAN
+        confidence: medium
+        notes: Comparative form errors (e.g., "more better").
+      - type: lt_rule
+        id: LESS_MORE_THEN
+        confidence: high
+    gap: false
+
+  - id: gr_superlative_adj
+    curriculum_item: Superlative adjectives
+    example: "They use the smallest bag to carry their groceries."
+    level: medium
+    detectors:
+      - type: lt_category
+        id: GRAMMAR
+        confidence: low
+    gap: true
+
+  - id: gr_interrogative_adj
+    curriculum_item: Interrogative adjectives
+    example: "what, which, whose"
+    level: medium
+    detectors: []
+    gap: true
+
+  - id: gr_proper_adj
+    curriculum_item: Proper adjectives
+    example: "Canadian provinces"
+    level: high
+    detectors:
+      - type: lt_category
+        id: CASING
+        confidence: low
+    gap: true
+    notes: Same gap as cap_proper_adjective; share new-feature work.
+
+  - id: gr_predicate_adj
+    curriculum_item: Predicate adjectives
+    example: "That music sounds wonderful."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: acomp dependency on copula/linking verb
+        confidence: high
+    gap: false
+
+  # ---- Adverbs ----
+  - id: gr_adverbs_modify
+    curriculum_item: Recognition of words that adverbs modify
+    example: "The principal spoke calmly during the meeting."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: advmod dependency
+        confidence: high
+    gap: false
+
+  - id: gr_adverbial_phrases
+    curriculum_item: Adverbial phrases
+    example: "The person was cheering very loudly."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: advmod with multiple tokens / advcl
+        confidence: medium
+    gap: false
+
+  # ---- Conjunctions ----
+  - id: gr_common_conj
+    curriculum_item: Common conjunctions
+    example: "when, so what, whether, unless"
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: POS=CCONJ or SCONJ
+        confidence: high
+    gap: false
+
+  - id: gr_coord_conj
+    curriculum_item: Coordinating conjunctions
+    example: "Karim can be a plumber, or he can be a welder."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: cc dependency
+        confidence: high
+      - type: lt_rule
+        id: COMMA_COMPOUND_SENTENCE
+        confidence: high
+        notes: "Catches missing comma before coordinator joining independent clauses."
+    gap: false
+
+  - id: gr_subord_conj
+    curriculum_item: Subordinating conjunctions
+    example: "You need to walk slowly because you may fall on the ice."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: mark dependency
+        confidence: high
+      - type: lt_rule
+        id: THE_CC
+        confidence: medium
+    gap: false
+
+  - id: gr_corr_conj
+    curriculum_item: Correlative conjunctions
+    example: "Either we walk to school or we ride our bicycles."
+    level: high
+    detectors: []
+    gap: true
+    notes: Either/or, neither/nor, both/and parallelism — no current detector. Possible spaCy-based feature.
+
+  # ---- Prepositions ----
+  - id: gr_prepositions
+    curriculum_item: Prepositions
+    example: "in, at, on, in front of, next to"
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: POS=ADP / dep=prep
+        confidence: high
+      - type: lt_category
+        id: GRAMMAR
+        confidence: medium
+        notes: Wrong-preposition errors (e.g., "different than" vs "different from") flagged by various LT rules.
+    gap: false
+
+  - id: gr_prep_phrases
+    curriculum_item: Prepositional phrases
+    example: "Look to your right and you will see the garage."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: prep + pobj
+        confidence: high
+    gap: false
+
+  # ---- Interjections ----
+  - id: gr_interjections
+    curriculum_item: Interjections
+    example: "wow, hey, ouch"
+    level: medium
+    detectors:
+      - type: spacy_signal
+        id: POS=INTJ
+        confidence: high
+    gap: false
+
+  # ---- Voice ----
+  - id: gr_active_passive
+    curriculum_item: Active vs. Passive voice
+    example: "The cat chases the mouse vs. My first day is one that will be remembered."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: nsubjpass + auxpass
+        confidence: high
+        notes: Use-rate detection of passive voice; not strictly an error feature.
+    gap: false
+
+  # ---- Participles ----
+  - id: gr_participles
+    curriculum_item: Participles
+    example: "The boys sitting on the bench were talking."
+    level: high
+    detectors:
+      - type: spacy_signal
+        id: acl dependency with VBG/VBN
+        confidence: high
+    gap: false
+    notes: Dangling-participle errors not currently detected.

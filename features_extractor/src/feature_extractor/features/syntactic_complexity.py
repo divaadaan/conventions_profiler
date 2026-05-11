@@ -96,6 +96,20 @@ def compute_syntactic_complexity_features(essay: Essay) -> dict[str, float]:
     else:
         features["syn_sentence_length_cv"] = 0.0
 
+    # Sentence-type usage rates (from spaCy classification)
+    n = len(sentences)
+    type_counts: dict[str, int] = {
+        "simple": 0, "compound": 0, "complex": 0, "compound_complex": 0
+    }
+    for s in sentences:
+        st = s.get("sentence_type", "simple")
+        if st in type_counts:
+            type_counts[st] += 1
+    features["syn_simple_sent_rate"] = type_counts["simple"] / n
+    features["syn_compound_sent_rate"] = type_counts["compound"] / n
+    features["syn_complex_sent_rate"] = type_counts["complex"] / n
+    features["syn_compound_complex_sent_rate"] = type_counts["compound_complex"] / n
+
     return features
 
 
@@ -108,5 +122,7 @@ def _empty_features() -> dict[str, float]:
         "syn_phrasal_clausal_ratio_mean",
         "syn_long_low_elaboration_count", "syn_long_high_elaboration_count",
         "syn_sentence_length_cv",
+        "syn_simple_sent_rate", "syn_compound_sent_rate",
+        "syn_complex_sent_rate", "syn_compound_complex_sent_rate",
     ]
     return {k: 0.0 for k in keys}

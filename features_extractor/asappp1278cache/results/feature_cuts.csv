@@ -1,0 +1,30 @@
+feature,formula,description,cut_1,cut_2,cut_3,direction,module
+agg_num_sentences,n_sent,Total sentence count,11.375,18.375,24.75,higher_is_better,Aggregation
+agg_errors_per_sentence_mean,Mean(errors/sent),Mean errors per sentence,1.4492995725639486,0.974609988995941,0.586085088619708,lower_is_better,Aggregation
+punct_to_clause_ratio,punct/clauses,Punctuation marks per clause,0.6574845240047547,0.7717938630243262,0.9137831578600304,higher_is_better,Punctuation
+err_global_density,global_errors/words,Global errors per word,0.009189567498338522,0.007669701217207272,0.005314772246493257,lower_is_better,Error Severity
+spell_misspelled_ratio,misspelled/words,Proportion of misspelled words,0.03052434845241655,0.0227269514252336,0.014342340062104521,lower_is_better,Spelling
+err_local_density,local_errors/words,Local errors per word,0.056002616036285216,0.03763401917132146,0.024312296248075266,lower_is_better,Error Severity
+dep_fragment_count,Count(fragments),Sentence fragments detected via dependency parse (no root verb),0.0,0.125,0.5,higher_is_better,Dependency
+punct_length_outlier_count,Count(len_outliers),Sentence length outlier count,0.125,0.5,0.875,higher_is_better,Punctuation
+syn_clauses_per_sentence_mean,Mean(clauses/sent),Mean number of clauses per sentence,2.1146395124655992,1.919796134331287,1.7587590554681212,lower_is_better,Syntactic
+syn_phrasal_clausal_ratio_mean,Mean(phrasal/clausal),Mean ratio of phrasal to clausal complexity,0.048689116132854794,0.053637309988170914,0.059649692740963434,higher_is_better,Syntactic
+dep_tree_depth_ratio_mean,Mean(depth/length),Mean tree depth to sentence length ratio,0.267299477322378,0.27991837959191945,0.29437325880659737,higher_is_better,Dependency
+dep_mdd_amod,MDD(amod),Mean dependency distance for adjectival modifier relations,1.025595238095238,1.057175925925926,1.0896571946571947,higher_is_better,Dependency
+dep_mdd_xcomp,MDD(xcomp),Mean dependency distance for open clausal complement relations,2.0131944444444443,2.0459802350427347,2.1003994269619266,higher_is_better,Dependency
+syn_long_high_elaboration_count,Count(long_high_elab),Long sentences with high phrasal elaboration,0.125,0.25,0.375,higher_is_better,Syntactic
+punct_comma_splice_ratio,comma_splices/n_sent,Proportion of sentences with potential comma splices,0.06260265469824294,0.057206118928231554,0.04164212818041728,lower_is_better,Punctuation
+dep_mdd_relcl,MDD(relcl),Mean dependency distance for relative clause relations,2.6901041666666665,2.8567945075757577,3.017471590909091,higher_is_better,Dependency
+err_medium_density,medium_errors/words,Medium-severity errors per word,0.007972026193129504,0.006678546657046241,0.004873069480463903,lower_is_better,Error Severity
+dep_mdd_max,Max(MDD_sent),Maximum per-sentence mean dependency distance,3.841191507290188,3.9347548725337402,4.014191231378732,higher_is_better,Dependency
+syn_phrasal_elaboration_stdev,SD(phrasal_elab),Standard deviation of phrasal elaboration,0.47505674028802086,0.5077117437816978,0.5329083846041227,higher_is_better,Syntactic
+err_cat_typos,Count(typos),Typographical error count,7.5,6.875,5.0,lower_is_better,Error Severity
+agg_words_per_sentence,n_words/n_sent,Mean words per sentence,18.6994918833009,17.16398837429322,15.795361465278345,lower_is_better,Aggregation
+dep_mdd_prep,MDD(prep),Mean dependency distance for prepositional relations,1.7678090428090427,1.8260188307063308,1.894516950817902,higher_is_better,Dependency
+syn_sentence_length_stdev,SD(sent_len),Standard deviation of sentence length,9.616322806446608,9.001215039682034,8.292523580203575,lower_is_better,Syntactic
+spell_function_word_errors,Count(function_misspelled),Misspelled function words,0.5,0.4375,0.25,lower_is_better,Spelling
+spell_content_error_ratio,content_misspelled/content_words,Content word misspelling rate,0.7648863636363636,0.7963102461264226,0.8520236299648064,higher_is_better,Spelling
+syn_phrasal_elaboration_mean,Mean(phrasal_elab),Mean phrasal elaboration score per sentence,0.9144835367986675,0.9317948976901915,0.9566600204414111,higher_is_better,Syntactic
+dep_mdd_advcl,MDD(advcl),Mean dependency distance for adverbial clause relations,6.444965277777778,6.601723710317461,6.760629734848485,higher_is_better,Dependency
+dep_tree_depth_max,Max(tree_depth),Maximum parse tree depth,8.125,8.25,8.375,higher_is_better,Dependency
+syn_clauses_per_sentence_max,Max(clauses/sent),Maximum clauses in a single sentence,4.625,4.375,4.125,lower_is_better,Syntactic

@@ -35,3 +35,11 @@ class BasePass(ABC):
         """batch-optimized passes"""
         for essay in essays:
             self.process_essay(essay)
+
+    def validate_pass_results(self, essay: Essay) -> bool:
+        """Optional hook to detect stale checkpoint entries (e.g., a model
+        version change). Return False if `essay.pass_results[self.name]` is
+        invalid for the current run; the orchestrator will re-process it.
+        Default: trust any cached entry.
+        """
+        return True

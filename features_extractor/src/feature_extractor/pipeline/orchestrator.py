@@ -8,15 +8,21 @@ from tqdm import tqdm
 
 from feature_extractor.models import Essay
 from feature_extractor.features.aggregation import compute_aggregation_features
+from feature_extractor.features.capitalization import compute_capitalization_features
 from feature_extractor.features.dependency import compute_dependency_features
 from feature_extractor.features.error_severity import compute_error_severity_features
+from feature_extractor.features.lemma_vocab import compute_lemma_vocab_features
 from feature_extractor.features.punctuation import compute_punctuation_features
+from feature_extractor.features.readability import compute_readability_features
+from feature_extractor.features.sentence_boundary import compute_sentence_boundary_features
 from feature_extractor.features.spelling import compute_spelling_features
+from feature_extractor.features.surprisal import compute_surprisal_features
 from feature_extractor.features.syntactic_complexity import compute_syntactic_complexity_features
 from feature_extractor.features.registry import get_enabled_features, get_required_modules
 from feature_extractor.passes.base import BasePass
 from feature_extractor.passes.languagetool_pass import LanguageToolPass
 from feature_extractor.passes.spacy_pass import SpacyPass
+from feature_extractor.passes.surprisal_pass import SurprisalPass
 from feature_extractor.pipeline.checkpoint import (
     load_checkpoint,
     load_partial_checkpoint,
@@ -31,6 +37,11 @@ FEATURE_MODULES = [
     ("punctuation", compute_punctuation_features),
     ("error_severity", compute_error_severity_features),
     ("spelling", compute_spelling_features),
+    ("capitalization", compute_capitalization_features),
+    ("sentence_boundary", compute_sentence_boundary_features),
+    ("readability", compute_readability_features),
+    ("lemma_vocab", compute_lemma_vocab_features),
+    ("surprisal", compute_surprisal_features),
     ("aggregation", compute_aggregation_features),
 ]
 
@@ -53,10 +64,36 @@ class Orchestrator:
 
     def _get_passes(self) -> list[BasePass]:
         """Instantiate passes in execution order."""
-        return [
+        passes: list[BasePass] = [
             SpacyPass(self.config),
             LanguageToolPass(self.config),
         ]
+        surprisal_cfg = self.config.get("models", {}).get("surprisal", {})
+        if surprisal_cfg.get("enabled", False):
+            passes.append(SurprisalPass(self.config))
+        return passes
+
+    def _invalidate_stale_checkpoints(
+        self, essays: list[Essay], pass_instance: BasePass
+    ) -> list[Essay]:
+        """Clear pass_results entries that fail per-pass validation (e.g., a
+        model version change for the surprisal pass). Returns the essays
+        whose entries were invalidated and now need re-processing.
+        """
+        pass_name = pass_instance.name
+        stale = []
+        for essay in essays:
+            if pass_name not in essay.pass_results:
+                continue
+            if not pass_instance.validate_pass_results(essay):
+                del essay.pass_results[pass_name]
+                stale.append(essay)
+        if stale:
+            logger.warning(
+                f"Pass '{pass_name}': invalidated {len(stale)} stale "
+                f"checkpoint entries; re-running for those essays."
+            )
+        return stale
 
     def run_passes(self, essays: list[Essay], force: bool = False) -> None:
         """Execute all passes over the essay corpus.
@@ -67,17 +104,22 @@ class Orchestrator:
         for pass_instance in self._get_passes():
             pass_name = pass_instance.name
 
-            # Try loading full checkpoint first (all essays covered)
             if self.checkpoint_dir and not force:
                 if load_checkpoint(essays, pass_name, self.checkpoint_dir):
-                    logger.info(f"Skipping pass '{pass_name}' (checkpoint)")
-                    continue
-
-            # Load partial checkpoint — get only unprocessed essays
-            if self.checkpoint_dir and not force:
-                remaining = load_partial_checkpoint(
-                    essays, pass_name, self.checkpoint_dir
-                )
+                    stale = self._invalidate_stale_checkpoints(essays, pass_instance)
+                    if not stale:
+                        logger.info(f"Skipping pass '{pass_name}' (checkpoint)")
+                        continue
+                    remaining = stale
+                else:
+                    remaining = load_partial_checkpoint(
+                        essays, pass_name, self.checkpoint_dir
+                    )
+                    stale = self._invalidate_stale_checkpoints(essays, pass_instance)
+                    remaining_ids = {e.essay_id for e in remaining}
+                    for e in stale:
+                        if e.essay_id not in remaining_ids:
+                            remaining.append(e)
             else:
                 remaining = essays
 

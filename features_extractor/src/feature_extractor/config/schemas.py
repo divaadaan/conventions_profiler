@@ -33,9 +33,15 @@ class LanguageToolConfig(BaseModel):
     language: str = "en-US"
 
 
+class SurprisalConfig(BaseModel):
+    enabled: bool = False
+    model: str = "EleutherAI/pythia-70m"
+
+
 class ModelsConfig(BaseModel):
     spacy: SpacyModelConfig = Field(default_factory=SpacyModelConfig)
     languagetool: LanguageToolConfig = Field(default_factory=LanguageToolConfig)
+    surprisal: SurprisalConfig = Field(default_factory=SurprisalConfig)
 
 
 class CacheConfig(BaseModel):

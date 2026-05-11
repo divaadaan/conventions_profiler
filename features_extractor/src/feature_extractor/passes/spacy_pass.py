@@ -13,6 +13,50 @@ from feature_extractor.passes.base import BasePass
 
 logger = logging.getLogger(__name__)
 
+# Subordinate-clause dep relations used for sentence-type classification.
+_SUBORD_DEPS = {"advcl", "relcl", "ccomp", "xcomp", "acl", "csubj", "csubjpass"}
+
+
+def _classify_sentence_type(sent_tokens) -> str:
+    """Classify a sentence span as simple / compound / complex / compound_complex.
+
+    Heuristic:
+      - subordinate clause = any dep in _SUBORD_DEPS
+      - coordinated independent clause = a 'conj' dep where the conjoined
+        token is a verb/aux with its own subject
+
+    Note: this classifier is dep-type-based and may misclassify comma-spliced
+    sentences (en_core_web_sm sometimes assigns weird dep types like ccomp).
+    Comma splice detection lives in sentence_boundary.py and uses a more
+    robust positional heuristic that does not depend on this classification.
+    """
+    has_subord = False
+    has_coord_clause = False
+    for token in sent_tokens:
+        if token.dep_ in _SUBORD_DEPS:
+            has_subord = True
+        if token.dep_ == "conj" and token.pos_ in ("VERB", "AUX"):
+            has_subj = any(
+                child.dep_ in ("nsubj", "nsubjpass", "csubj", "csubjpass")
+                for child in token.children
+            )
+            if has_subj:
+                has_coord_clause = True
+    if has_subord and has_coord_clause:
+        return "compound_complex"
+    if has_coord_clause:
+        return "compound"
+    if has_subord:
+        return "complex"
+    return "simple"
+
+
+def _has_terminal_punct(sent_text: str) -> bool:
+    s = sent_text.rstrip()
+    if not s:
+        return False
+    return s[-1] in ".!?"
+
 
 def _compute_sentence_data(sent) -> dict[str, Any]:
     """Extract intermediate data from a single spaCy parse. """
@@ -100,9 +144,18 @@ def _compute_sentence_data(sent) -> dict[str, Any]:
         "word_count": len([t for t in tokens if not t.is_punct and not t.is_space]),
         "token_count": len(tokens),
         "tokens": [
-            {"text": t.text, "lower": t.lower_, "pos": t.pos_, "is_alpha": t.is_alpha}
+            {
+                "text": t.text,
+                "lower": t.lower_,
+                "lemma": t.lemma_.lower(),
+                "pos": t.pos_,
+                "is_alpha": t.is_alpha,
+                "ent_type": t.ent_type_,
+            }
             for t in tokens
         ],
+        "sentence_type": _classify_sentence_type(tokens),
+        "has_terminal_punct": _has_terminal_punct(sent.text),
         "mdd": mdd,
         "adjacent_dep_proportion": adjacent_prop,
         "max_arc_length": max_arc_length,

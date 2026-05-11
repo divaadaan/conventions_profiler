@@ -2,6 +2,7 @@
 
 import statistics
 
+from feature_extractor.features._helpers import distribute_errors_to_sentences
 from feature_extractor.models import Essay
 
 
@@ -30,7 +31,7 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
     )
 
     # Errors per sentence
-    errors_per_sentence = _distribute_errors_to_sentences(sentences, matches)
+    errors_per_sentence = distribute_errors_to_sentences(sentences, matches)
     features["agg_errors_per_sentence_mean"] = _safe_mean(errors_per_sentence)
     features["agg_errors_per_sentence_max"] = (
         max(errors_per_sentence) if errors_per_sentence else 0.0
@@ -76,29 +77,3 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
         features["agg_error_concentration"] = 0.0
 
     return features
-
-
-def _distribute_errors_to_sentences(
-    sentences: list[dict],
-    matches: list[dict],
-) -> list[float]:
-    """Map LanguageTool errors to sentences by character offset
-        # Build ranges from stored spaCy char offsets, then count errors per sentence"""
-    if not sentences:
-        return []
-
-
-    sent_ranges = [
-        (sent["start_char"], sent["end_char"])
-        for sent in sentences
-    ]
-
-    errors_per_sent = [0.0] * len(sentences)
-    for match in matches:
-        offset = match.get("offset", 0)
-        for i, (start, end) in enumerate(sent_ranges):
-            if start <= offset < end:
-                errors_per_sent[i] += 1.0
-                break
-
-    return errors_per_sent

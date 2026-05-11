@@ -16,7 +16,6 @@ import pandas as pd
 from feature_extractor.config.schemas import load_config
 from feature_extractor.data.loaders.csv_loader import load_dataset
 from feature_extractor.pipeline.orchestrator import Orchestrator
-from feature_extractor.analysis.runner import run_validation_pipeline
 
 logging.basicConfig(
     level=logging.INFO,
@@ -59,6 +58,10 @@ def main():
         help="Process only the first N essays",
     )
     parser.add_argument(
+        "--prompt", type=str, default=None,
+        help="Filter to a single prompt_id (e.g. --prompt 7).",
+    )
+    parser.add_argument(
         "--output", type=str, default=None,
         help="Output path for feature matrix, default tp cache directory",
     )
@@ -89,6 +92,10 @@ def main():
     col_map = config.dataset.columns.model_dump()
     essays = load_dataset(path=config.dataset.path, columns=col_map)
 
+    if args.prompt is not None:
+        before = len(essays)
+        essays = [e for e in essays if str(e.prompt_id) == args.prompt]
+        logger.info(f"Filtered to prompt_id={args.prompt}: {len(essays)}/{before} essays")
     if args.limit is not None:
         essays = essays[:args.limit]
     logger.info(f"Loaded {len(essays)} essays")
@@ -127,6 +134,9 @@ def main():
     print(df[feature_cols].describe().T[["mean", "std", "min", "max"]].to_string())
 
     if args.analyze:
+        # Lazy import: scipy is a dev-only dep and isn't needed for extraction.
+        from feature_extractor.analysis.runner import run_validation_pipeline
+
         print("\n" + "=" * 60)
         print("VALIDATION & ANALYSIS")
         print("=" * 60)

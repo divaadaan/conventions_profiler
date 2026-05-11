@@ -8,6 +8,9 @@ models:
   languagetool:
     server_port: 8081
     language: "en-CA"
+  surprisal:
+    enabled: true  # Gates the SurprisalPass; flip to false to skip surp_* features.
+    model: "EleutherAI/pythia-70m"  # Replicates Gruteke Klein et al. 2025 (arXiv:2502.11150).
 
 cache:
   enabled: true
@@ -16,11 +19,11 @@ cache:
   checkpoint_chunk_size: 500  # essays per checkpoint increment
 
 dataset:
-  path: "./src/feature_extractor/data/processed/merged_essays.csv"
+  path: "./src/feature_extractor/data/processed/asap-pp-3456-language-norm.csv"
   columns:
     essay_id: "essay_id"
-    text: "essay"
-    score: "language"
+    text: "essay_deanonymized"
+    score: "language_norm"
     prompt_id: "essay_set"
 
 features:
@@ -31,5 +34,5 @@ features:
 
 scoring:
   score_min: 0.0
-  score_max: 5.0
-  normalise: false
+  score_max: 1.0
+  normalise: true

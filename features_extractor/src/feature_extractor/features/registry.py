@@ -8,6 +8,7 @@ class FeatureSpec:
     module: str
     description: str
     default_enabled: bool
+    level: str | None = None  # "low" | "medium" | "high" — curriculum stage
 
 _DEFAULT_ENABLED = {
     "agg_errors_per_sentence_mean",
@@ -38,6 +39,30 @@ _DEFAULT_ENABLED = {
     "syn_phrasal_elaboration_mean",
     "syn_phrasal_elaboration_stdev",
     "syn_sentence_length_stdev",
+    # Curriculum-aligned additions (Phase: feature expansion)
+    "cap_sentence_initial_rate",
+    "cap_proper_noun_rate",
+    "cap_intrusion_rate",
+    "bound_missing_term_punct_rate",
+    "bound_boundary_error_rate",
+    "err_simple_sent_error_rate",
+    "err_complex_sent_error_rate",
+    "syn_simple_sent_rate",
+    "syn_compound_sent_rate",
+    "syn_complex_sent_rate",
+    "read_flesch_reading_ease",
+    "read_flesch_kincaid_grade",
+    "read_dale_chall_difficult_word_density",
+    "vocab_unique_lemma_count",
+    "vocab_lemma_diversity_ratio",
+    "spell_unique_misspelled_lemma_count",
+    "spell_unique_misspelled_lemma_ratio",
+    "surp_mean_per_word",
+    "surp_perplexity",
+    "surp_p95_per_word",
+    "surp_std_per_word",
+    "surp_sentence_mean_max",
+    "surp_sentence_mean_std",
 }
 
 FEATURE_REGISTRY: dict[str, FeatureSpec] = {
@@ -124,6 +149,39 @@ FEATURE_REGISTRY: dict[str, FeatureSpec] = {
       "agg_worst_window_3_mean": FeatureSpec("agg_worst_window_3_mean", "aggregation", "Maximum mean errors in any 3-sentence window", False),
       "agg_mdd_consistency": FeatureSpec("agg_mdd_consistency", "aggregation", "Consistency of dependency distance across sentences", False),
       "agg_error_concentration": FeatureSpec("agg_error_concentration", "aggregation", "Concentration of errors across sentences (Gini coefficient)", False),
+      # --- Capitalization (curriculum-aligned) ---
+      "cap_sentence_initial_rate": FeatureSpec("cap_sentence_initial_rate", "capitalization", "Sentence-initial lowercase rate (errors / num_sentences)", True, level="low"),
+      "cap_proper_noun_rate": FeatureSpec("cap_proper_noun_rate", "capitalization", "Lowercase proper-noun rate (errors / num_proper_nouns)", True, level="medium"),
+      "cap_intrusion_rate": FeatureSpec("cap_intrusion_rate", "capitalization", "Mid-sentence unexpected capital rate (errors / num_sentences)", True, level="low"),
+      # --- Sentence boundary (curriculum-aligned) ---
+      "bound_missing_term_punct_count": FeatureSpec("bound_missing_term_punct_count", "sentence_boundary", "Sentences without terminal punctuation", False, level="low"),
+      "bound_missing_term_punct_rate": FeatureSpec("bound_missing_term_punct_rate", "sentence_boundary", "Missing-terminal-punct rate", True, level="low"),
+      "bound_boundary_error_rate": FeatureSpec("bound_boundary_error_rate", "sentence_boundary", "Composite: missing terminal punct + comma splices + fragments per sentence", True, level="high"),
+      "err_simple_sent_error_rate": FeatureSpec("err_simple_sent_error_rate", "sentence_boundary", "Simple sentences with errors / num_simple_sentences", True, level="low"),
+      "err_complex_sent_error_rate": FeatureSpec("err_complex_sent_error_rate", "sentence_boundary", "Complex sentences with errors / num_complex_sentences", True, level="high"),
+      # --- Sentence-type usage rates ---
+      "syn_simple_sent_rate": FeatureSpec("syn_simple_sent_rate", "syntactic_complexity", "Proportion of simple sentences", True, level="low"),
+      "syn_compound_sent_rate": FeatureSpec("syn_compound_sent_rate", "syntactic_complexity", "Proportion of compound sentences", True, level="high"),
+      "syn_complex_sent_rate": FeatureSpec("syn_complex_sent_rate", "syntactic_complexity", "Proportion of complex sentences", True, level="high"),
+      "syn_compound_complex_sent_rate": FeatureSpec("syn_compound_complex_sent_rate", "syntactic_complexity", "Proportion of compound-complex sentences", False, level="high"),
+      # --- Readability ---
+      "read_flesch_reading_ease": FeatureSpec("read_flesch_reading_ease", "readability", "Flesch Reading Ease (higher = easier)", True),
+      "read_flesch_kincaid_grade": FeatureSpec("read_flesch_kincaid_grade", "readability", "Flesch-Kincaid US grade level", True),
+      "read_dale_chall_difficult_word_density": FeatureSpec("read_dale_chall_difficult_word_density", "readability", "Density of words outside Dale-Chall easy-word list (PDW)", True),
+      # --- Lemma vocabulary ---
+      "vocab_unique_lemma_count": FeatureSpec("vocab_unique_lemma_count", "lemma_vocab", "Hapax-legomenon lemma count (lemmas appearing once)", True),
+      "vocab_lemma_diversity_ratio": FeatureSpec("vocab_lemma_diversity_ratio", "lemma_vocab", "Distinct lemmas / total alpha tokens", True),
+      # --- Lemma-deduplicated spelling ---
+      "spell_unique_misspelled_lemma_count": FeatureSpec("spell_unique_misspelled_lemma_count", "spelling", "Count of distinct misspelled lemmas", True),
+      "spell_unique_misspelled_lemma_ratio": FeatureSpec("spell_unique_misspelled_lemma_ratio", "spelling", "Distinct misspelled lemmas / total words", True),
+      "spell_repetition_factor": FeatureSpec("spell_repetition_factor", "spelling", "Raw misspelled ratio / unique misspelled lemma ratio", False),
+      # --- Surprisal (causal LM, log base 2) ---
+      "surp_mean_per_word": FeatureSpec("surp_mean_per_word", "surprisal", "Mean per-word surprisal in bits under the causal LM", True),
+      "surp_perplexity": FeatureSpec("surp_perplexity", "surprisal", "Paper-compatible perplexity scalar: 2 ** mean surprisal", True),
+      "surp_p95_per_word": FeatureSpec("surp_p95_per_word", "surprisal", "95th percentile per-word surprisal — tail hotspot", True),
+      "surp_std_per_word": FeatureSpec("surp_std_per_word", "surprisal", "Std dev of per-word surprisal — overall variability", True),
+      "surp_sentence_mean_max": FeatureSpec("surp_sentence_mean_max", "surprisal", "Max per-sentence mean surprisal — worst sentence fluency", True),
+      "surp_sentence_mean_std": FeatureSpec("surp_sentence_mean_std", "surprisal", "Std dev of per-sentence mean surprisals — fluency consistency", True),
   }
 
 def get_enabled_features(config_overrides: dict[str, bool] | None = None) -> set[str]:
