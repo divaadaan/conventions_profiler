@@ -1,7 +1,6 @@
 """Shared scaffold for feature validation harnesses.
 
-Each per-feature test file defines a list of `FeatureCase`s. The shared
-runner here wraps text in an Essay, runs the requested passes, applies a
+Each per-feature test file defines a list of `FeatureCase`s. Wrap the text in an Essay, runs the requested passes, applies a
 feature-module function, and asserts that each named feature lands in
 its expected (low, high) range.
 
@@ -28,11 +27,7 @@ REPORT_DIR = REPO_ROOT / "docs" / "reports" / "harness"
 
 @dataclass
 class FeatureCase:
-    """A single fixture with expected feature ranges.
-
-    expected_ranges maps feature_name -> (low, high) inclusive bounds.
-    Use float('-inf') / float('inf') for one-sided expectations.
-    """
+    """A single fixture with expected feature ranges."""
     id: str
     text: str
     description: str

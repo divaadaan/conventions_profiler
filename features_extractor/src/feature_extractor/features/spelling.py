@@ -4,22 +4,15 @@ from spellchecker import SpellChecker
 
 from feature_extractor.models import Essay
 
-# POS tags for content words (carry semantic meaning)
 CONTENT_POS = {"NOUN", "PROPN", "VERB", "ADJ", "ADV"}
-
-# POS tags for function words (grammatical role, less semantic impact)
 FUNCTION_POS = {"DET", "ADP", "AUX", "CCONJ", "SCONJ", "PART", "PRON"}
 
-# Minimum word length to consider for spell checking
 MIN_WORD_LENGTH = 2
 
-# Initialize spell checker once at module level
 _spell = SpellChecker()
 
 
 def _extract_words_with_pos(essay: Essay) -> list[dict]:
-    """Extract words with their POS tags from spaCy pass results.
-    Return: a list of dicts with 'word' (lowercased), 'pos', 'lemma', and 'original'."""
     spacy_data = essay.pass_results.get("spacy", {})
     sentences = spacy_data.get("sentences", [])
 
@@ -38,7 +31,6 @@ def _extract_words_with_pos(essay: Essay) -> list[dict]:
 
 
 def compute_spelling_features(essay: Essay) -> dict[str, float]:
-    """Extract spelling features using pyspellchecker and spaCy POS tags."""
     words_with_pos = _extract_words_with_pos(essay)
 
     if not words_with_pos:
@@ -46,11 +38,9 @@ def compute_spelling_features(essay: Essay) -> dict[str, float]:
 
     features: dict[str, float] = {}
 
-    # Check all words against dictionary
     word_list = [w["word"] for w in words_with_pos]
     unknown = _spell.unknown(word_list)
 
-    # Build misspelling details
     misspellings = []
     for w in words_with_pos:
         if w["word"] in unknown:
@@ -66,39 +56,33 @@ def compute_spelling_features(essay: Essay) -> dict[str, float]:
     total_words = len(words_with_pos)
     misspelled_count = len(misspellings)
 
-    #Basic spelling counts
     features["spell_misspelled_count"] = float(misspelled_count)
     features["spell_misspelled_ratio"] = (
         misspelled_count / total_words if total_words > 0 else 0.0
     )
 
-    #Content word vs function word misspellings
     content_misspellings = sum(1 for m in misspellings if m["pos"] in CONTENT_POS)
     function_misspellings = sum(1 for m in misspellings if m["pos"] in FUNCTION_POS)
 
     features["spell_content_word_errors"] = float(content_misspellings)
     features["spell_function_word_errors"] = float(function_misspellings)
 
-    # Ratio of content word misspellings to total misspellings
     features["spell_content_error_ratio"] = (
         content_misspellings / misspelled_count if misspelled_count > 0 else 0.0
     )
 
-    #Edit distance features
     close_match_count = sum(1 for m in misspellings if m["has_close_match"])
     features["spell_close_match_ratio"] = (
         close_match_count / misspelled_count if misspelled_count > 0 else 0.0
     )
 
-    # Words without close matches are harder to recover
     far_misspellings = misspelled_count - close_match_count
     features["spell_far_misspelling_count"] = float(far_misspellings)
     features["spell_far_misspelling_ratio"] = (
         far_misspellings / total_words if total_words > 0 else 0.0
     )
 
-    # Lemma-deduplicated misspellings.
-    # 'becuase' and 'becuases' should count as one error type, not two.
+    # Lemma dedup: 'becuase' and 'becuases' count as one error type.
     unique_misspelled_lemmas = {m["lemma"] for m in misspellings}
     unique_misspelled_count = len(unique_misspelled_lemmas)
     features["spell_unique_misspelled_lemma_count"] = float(unique_misspelled_count)
@@ -106,8 +90,24 @@ def compute_spelling_features(essay: Essay) -> dict[str, float]:
         unique_misspelled_count / total_words if total_words > 0 else 0.0
     )
 
-    # Repetition factor: how often is the same misspelled lemma repeated?
-    # raw_ratio / unique_ratio. >1 means repeats; ==1 means each error is unique.
+    unique_content_lemmas = {m["lemma"] for m in misspellings if m["pos"] in CONTENT_POS}
+    unique_function_lemmas = {m["lemma"] for m in misspellings if m["pos"] in FUNCTION_POS}
+    features["spell_unique_content_lemma_count"] = float(len(unique_content_lemmas))
+    features["spell_unique_content_lemma_ratio"] = (
+        len(unique_content_lemmas) / total_words if total_words > 0 else 0.0
+    )
+    features["spell_unique_function_lemma_count"] = float(len(unique_function_lemmas))
+    features["spell_unique_function_lemma_ratio"] = (
+        len(unique_function_lemmas) / total_words if total_words > 0 else 0.0
+    )
+
+    # Positive framing: rubric scores 30/40 expect visible errors, so the clean
+    # signal aggregate is more discriminating than the error rate.
+    features["spell_unique_correct_lemma_rate"] = (
+        1.0 - features["spell_unique_misspelled_lemma_ratio"]
+    )
+
+    # >1 means the same misspelled lemma repeats; ==1 means each error is unique.
     raw_ratio = features["spell_misspelled_ratio"]
     unique_ratio = features["spell_unique_misspelled_lemma_ratio"]
     features["spell_repetition_factor"] = (
@@ -126,6 +126,13 @@ def _empty_features() -> dict[str, float]:
         "spell_far_misspelling_count", "spell_far_misspelling_ratio",
         "spell_unique_misspelled_lemma_count",
         "spell_unique_misspelled_lemma_ratio",
+        "spell_unique_content_lemma_count",
+        "spell_unique_content_lemma_ratio",
+        "spell_unique_function_lemma_count",
+        "spell_unique_function_lemma_ratio",
+        "spell_unique_correct_lemma_rate",
         "spell_repetition_factor",
     ]
-    return {k: 0.0 for k in keys}
+    empty = {k: 0.0 for k in keys}
+    empty["spell_unique_correct_lemma_rate"] = 1.0
+    return empty

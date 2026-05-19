@@ -1,9 +1,4 @@
-"""Validation harness for sentence-boundary features.
-
-Sentence boundary features depend on BOTH spaCy (sentence segmentation,
-classification, terminal-punct flag) and LanguageTool (comma-splice rule
-detection). Tests therefore use the languagetool_pass fixture.
-"""
+"""Validation harness for sentence-boundary features."""
 
 from __future__ import annotations
 
@@ -32,7 +27,7 @@ CASES: list[FeatureCase] = [
         expected_ranges={
             "bound_missing_term_punct_count": (0.0, 0.0),
             "bound_missing_term_punct_rate": (0.0, 0.0),
-            "bound_boundary_error_rate": (0.0, 0.2),  # tolerate fragment heuristic noise
+            "bound_boundary_error_rate": (0.0, 0.2),
         },
     ),
 
@@ -46,8 +41,6 @@ CASES: list[FeatureCase] = [
         ),
         description="No terminal punctuation anywhere.",
         expected_ranges={
-            # spaCy may segment this as 1 mega-sentence or 3; either way the
-            # composite should be elevated.
             "bound_boundary_error_rate": (0.3, 5.0),
         },
     ),

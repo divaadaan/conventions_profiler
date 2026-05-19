@@ -22,7 +22,6 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
 
     features: dict[str, float] = {}
 
-    # Document size features
     features["agg_num_sentences"] = float(len(sentences))
     features["agg_total_words"] = float(spacy_data.get("total_words", 0))
     features["agg_words_per_sentence"] = (
@@ -30,7 +29,6 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
         if features["agg_num_sentences"] > 0 else 0.0
     )
 
-    # Errors per sentence
     errors_per_sentence = distribute_errors_to_sentences(sentences, matches)
     features["agg_errors_per_sentence_mean"] = _safe_mean(errors_per_sentence)
     features["agg_errors_per_sentence_max"] = (
@@ -38,13 +36,11 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
     )
     features["agg_errors_per_sentence_stdev"] = _safe_stdev(errors_per_sentence)
 
-    # Proportion of error-free sentences
     error_free = sum(1 for e in errors_per_sentence if e == 0)
     features["agg_error_free_sentence_ratio"] = (
         error_free / len(errors_per_sentence) if errors_per_sentence else 0.0
     )
 
-    # Worst-window analysis
     if len(errors_per_sentence) >= 3:
         window_sums = [
             sum(errors_per_sentence[i:i+3])
@@ -60,11 +56,9 @@ def compute_aggregation_features(essay: Essay) -> dict[str, float]:
             [float(e) for e in errors_per_sentence]
         )
 
-    # MDD consistency
     sentence_mdds = [s.get("mdd", 0.0) for s in sentences]
     features["agg_mdd_consistency"] = _safe_stdev(sentence_mdds)
 
-    # Error concentration index
     if errors_per_sentence and sum(errors_per_sentence) > 0:
         total = sum(errors_per_sentence)
         n = len(errors_per_sentence)

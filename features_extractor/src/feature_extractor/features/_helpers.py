@@ -7,10 +7,7 @@ def distribute_errors_to_sentences(
     sentences: list[dict],
     matches: list[dict],
 ) -> list[float]:
-    """Map LanguageTool match offsets to sentence indices.
-
-    Returns a list of error counts, one per sentence (in order).
-    """
+    """Map LanguageTool match offsets to per-sentence error counts."""
     if not sentences:
         return []
 

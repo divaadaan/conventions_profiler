@@ -1,9 +1,4 @@
-"""Validation harness for readability features (textstat-backed).
-
-Readability features have no spaCy/LT dependency, so this test runs without
-those passes. Each case asserts the textstat formula lands in a sensible
-range for text of known difficulty.
-"""
+"""Validation harness for readability features."""
 
 from __future__ import annotations
 
@@ -26,11 +21,8 @@ CASES: list[FeatureCase] = [
         ),
         description="Very simple short sentences and one-syllable words.",
         expected_ranges={
-            # Flesch reading ease: high for simple text. Very simple text often >80.
             "read_flesch_reading_ease": (60.0, 130.0),
-            # Grade level should be low (elementary).
             "read_flesch_kincaid_grade": (-5.0, 5.0),
-            # Few/no difficult words.
             "read_dale_chall_difficult_word_density": (0.0, 0.2),
         },
     ),
@@ -46,8 +38,6 @@ CASES: list[FeatureCase] = [
         ),
         description="Dense academic register with polysyllabic vocabulary.",
         expected_ranges={
-            # Hard text: very low FRE (formula can go negative on dense polysyllabic text),
-            # high grade level, high difficult-word density.
             "read_flesch_reading_ease": (-150.0, 50.0),
             "read_flesch_kincaid_grade": (10.0, 40.0),
             "read_dale_chall_difficult_word_density": (0.3, 1.0),

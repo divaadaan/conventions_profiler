@@ -72,7 +72,11 @@ Closing the gap between ML scoring and expert scoring by adding curriculum-align
 
 **This week's deliverable (2026-05-11): COMPLETE.** Scope was the missing curriculum-coverage features (capitalization, sentence boundary, readability, lemma vocab, surprisal) plus a pytest-integrated validation harness for each. All shipped, all harnesses green.
 
-**Next week's deliverable (~2026-05-18):** aggregation cognitive reframing + full ASAP re-extraction + model retraining (items #1, #3, #6 below).
+Mid-session scope additions (post-client-feedback session 2026-05-11):
+- **Spelling dedup tightening**: raw `spell_misspelled_ratio` demoted; added `spell_unique_content_lemma_count/ratio`, `spell_unique_function_lemma_count/ratio`, `spell_unique_correct_lemma_rate`.
+- **(1 - x) success-feature pass over rate-style features**: added positive complements for all clean and clamped (1-x) candidates. New features default-enabled: `cap_sentence_initial_correct_rate`, `cap_proper_noun_correct_rate`, `cap_intrusion_correct_rate` (clamped), `bound_terminal_punct_correct_rate`, `bound_boundary_correct_rate` (clamped), `err_simple_sent_correct_rate`, `err_complex_sent_correct_rate`, `punct_comma_splice_correct_rate` (clamped). All clamps use `max(0.0, 1.0 - min(rate, 1.0))`. Net default count: 51 → 63.
+
+**Next week's deliverable (~2026-05-18):** remaining aggregation cognitive reframing (multi-input aggregates like the spec's `agg_mechanical_consistency`, `agg_reading_ease`, etc. — not the simple 1-x complements, those are now done) + full ASAP re-extraction + model retraining (items #1, #3, #6 below).
 
 ---
 
@@ -129,6 +133,8 @@ Tied to #3. The current trained models will be replaced — no backwards-compat 
 - **Lemma denominator quirk**: `spell_repetition_factor = raw_ratio / unique_ratio`. When `unique_ratio == raw_ratio` (no repeats), factor = 1.0. When some misspellings repeat, factor > 1.0. When no misspellings, factor = 0.0 (defaulted). Document this in any client-facing description.
 
 - **Java/JDK setup on user's box**: System PATH had a stale `Microsoft/jdk-21.0.10.7-hotspot` entry pointing nowhere; actual JDK is at `C:\Program Files\Eclipse Adoptium\jdk-21.0.11.10-hotspot`. JAVA_HOME and PATH set in `~/.bashrc`. Worth cleaning the stale system PATH entry next time admin access is convenient.
+
+- **Surprisal is sensitive to raw text artifacts (FLAG IN CLIENT DELIVERABLE)**: Pythia 70M has never seen ASAP-style anonymization placeholders (`@CAPS1`, `@PERSON3`, `@LOCATION12`, etc.) or Mojibake-encoded curly quotes (`'`, `'`) during training, so it assigns extreme surprisal to them. In the prompt-7 verification run (1,569 essays), 7,013 `@CAPS` tokens across 983 essays inflated `surp_perplexity` to ~11,800 in the worst case and produced a 76-bit single-token "sentence" (essay 18233, sentence "@CAPS1-@CAPS1."). On a corpus with full deanonymization + quote normalization, these features behave correctly — see smoke test results in this doc. **Recommend to client**: deanonymize and normalize quotes upstream of the extractor. `scripts/deanonymize.py` in the sibling `justification/` project handles `@PERSON`/`@LOCATION`/etc. but explicitly preserves `@CAPS` (which is the dominant token in prompt 7) — a CAPS-pool extension or upstream stripping is needed for clean prompt-7 numbers.
 
 ---
 

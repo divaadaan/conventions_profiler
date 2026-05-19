@@ -31,12 +31,6 @@ def report_enabled(request) -> bool:
 
 @pytest.fixture(scope="session")
 def spacy_pass() -> SpacyPass:
-    """Session-scoped spaCy pass.
-
-    Defaults to en_core_web_trf to match production parse fidelity.
-    Override with HARNESS_SPACY_MODEL=en_core_web_sm for faster local runs
-    (some cases may then become flaky — see harness notes).
-    """
     model = os.environ.get("HARNESS_SPACY_MODEL", "en_core_web_trf")
     config = {"models": {"spacy": {"model": model}}, "hardware": {"batch_size": 8}}
     pass_ = SpacyPass(config)
@@ -56,11 +50,6 @@ def languagetool_pass() -> LanguageToolPass:
 
 @pytest.fixture(scope="session")
 def surprisal_pass():
-    """Session-scoped surprisal pass loaded with Pythia 70M on CPU.
-
-    Skipped if torch/transformers aren't installed. The model download
-    (~150MB) is cached by HF Hub on first use.
-    """
     pytest.importorskip("torch")
     pytest.importorskip("transformers")
     from feature_extractor.passes.surprisal_pass import SurprisalPass

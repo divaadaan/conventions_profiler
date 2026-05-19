@@ -1,10 +1,4 @@
 """Validation harness for surprisal features (Pythia 70M default).
-
-Surprisal values vary with the LM, so bounds here are deliberately loose —
-they assert plausible per-word-bits ranges and the *relative ordering*
-between fluent and disfluent text. Tight calibration belongs in the
-diagnostic CSV (``--report``), not the assertions.
-
 Requires torch + transformers (skipped via importorskip in conftest).
 """
 
@@ -33,15 +27,9 @@ CASES: list[FeatureCase] = [
         ),
         description="Short fluent sentences with common vocabulary.",
         expected_ranges={
-            # Mean per-word surprisal under Pythia 70M for fluent simple
-            # text is moderate (model is small, so absolute values are
-            # higher than larger LMs would give).
             "surp_mean_per_word": (1.0, 15.0),
-            # Perplexity = 2 ** mean ∈ a wide but bounded range.
             "surp_perplexity": (2.0, 32768.0),
-            # Variability should be present but bounded.
             "surp_std_per_word": (0.0, 15.0),
-            # P95 is at least the mean.
             "surp_p95_per_word": (1.0, 30.0),
         },
     ),
@@ -54,9 +42,7 @@ CASES: list[FeatureCase] = [
         ),
         description="Nonsense / OOV-heavy text. Expect very high mean surprisal.",
         expected_ranges={
-            # Garbled text → higher mean than fluent baseline.
             "surp_mean_per_word": (5.0, 40.0),
-            # Tail will spike on the OOV BPE pieces.
             "surp_p95_per_word": (8.0, 60.0),
         },
     ),
@@ -66,7 +52,6 @@ CASES: list[FeatureCase] = [
         text="Hello.",
         description="Single sentence, very few tokens — must not crash.",
         expected_ranges={
-            # Some surprisal value; may be 0 if first token is dropped.
             "surp_mean_per_word": (0.0, 30.0),
         },
     ),
@@ -77,7 +62,7 @@ CASES: list[FeatureCase] = [
         description="Empty text — all aggregates default to zero.",
         expected_ranges={
             "surp_mean_per_word": (0.0, 0.0),
-            "surp_perplexity": (0.0, 1.0),  # 2 ** 0 == 1, default is 0.0
+            "surp_perplexity": (0.0, 1.0),
             "surp_p95_per_word": (0.0, 0.0),
             "surp_std_per_word": (0.0, 0.0),
             "surp_sentence_mean_max": (0.0, 0.0),
@@ -113,8 +98,6 @@ def test_surprisal_case(case, spacy_pass, surprisal_pass):
 
 
 def test_garbled_higher_than_fluent(spacy_pass, surprisal_pass):
-    """Relative-ordering check: garbled text should have higher mean
-    surprisal than fluent text. Far more robust than absolute bounds."""
     fluent = next(c for c in CASES if c.id == "surp_fluent_01")
     garbled = next(c for c in CASES if c.id == "surp_garbled_01")
 

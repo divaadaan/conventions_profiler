@@ -1,12 +1,7 @@
 """Lemma-based vocabulary features.
 
-Treats inflected variants ('run', 'runs', 'running', 'ran') as one type by
-keying on lemmas instead of surface forms. Two features:
-
-    vocab_unique_lemma_count        count of hapax-legomenon lemmas
-                                    (lemmas appearing exactly once)
-    vocab_lemma_diversity_ratio     unique-lemma type-token ratio
-                                    (distinct lemmas / total alpha tokens)
+Keyed on lemmas so inflected variants ('run', 'runs', 'running', 'ran') count
+as one type.
 """
 
 from collections import Counter

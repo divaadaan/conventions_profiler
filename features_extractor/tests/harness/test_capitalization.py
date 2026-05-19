@@ -72,8 +72,6 @@ CASES: list[FeatureCase] = [
         description="Three proper nouns lowercased: toronto, sarah, vancouver.",
         expected_ranges={
             "cap_sentence_initial_rate": (0.0, 0.0),
-            # NER fallback should catch toronto/vancouver as GPE; sarah as PERSON.
-            # Expectation: at least 50% of detected proper nouns are flagged.
             "cap_proper_noun_rate": (0.5, 1.0),
             "cap_intrusion_rate": (0.0, 0.0),
         },
@@ -90,8 +88,6 @@ CASES: list[FeatureCase] = [
         description='Two unexpected mid-sentence capitals: "Park" and "Soccer".',
         expected_ranges={
             "cap_sentence_initial_rate": (0.0, 0.0),
-            # "Park" and "Soccer" are common nouns capitalized — NOT proper nouns.
-            # Two intrusions in two sentences = 1.0.
             "cap_intrusion_rate": (0.9, 1.1),
         },
     ),
@@ -108,7 +104,6 @@ CASES: list[FeatureCase] = [
         description="Two sentence-initial errors + one proper-noun error + one intrusion.",
         expected_ranges={
             "cap_sentence_initial_rate": (0.6, 0.7),  # 2/3
-            # NER detects "sarah" as the sole proper-noun candidate; lowercased → 1/1.
             "cap_proper_noun_rate": (0.9, 1.0),
             "cap_intrusion_rate": (0.3, 0.4),  # 1/3 ('Noon')
         },
@@ -142,7 +137,6 @@ CASES: list[FeatureCase] = [
         ),
         description="Run-on with no punctuation. Feature must produce finite values without crashing.",
         expected_ranges={
-            # No assertions on specific values — only that output is finite and in [0, 1].
             "cap_sentence_initial_rate": (0.0, 1.0),
             "cap_proper_noun_rate": (0.0, 1.0),
             "cap_intrusion_rate": (0.0, 1.0),
@@ -168,7 +162,7 @@ CASES: list[FeatureCase] = [
 
 
 def test_all_cases_produce_finite_features(spacy_pass):
-    """Sanity: every case must produce finite values for all three features."""
+    """every case must produce finite values for all three features."""
     rows = []
     for case in CASES:
         _, features = run_feature_case(case, spacy_pass, compute_capitalization_features)
@@ -176,7 +170,6 @@ def test_all_cases_produce_finite_features(spacy_pass):
             assert math.isfinite(val), f"[{case.id}] {name}={val} is not finite"
             assert 0.0 <= val <= 1.0, f"[{case.id}] {name}={val} outside [0,1]"
         rows.append({"case_id": case.id, "tier": case.tier, **features})
-    # Stash for later report; only written when --report is set, in dedicated test.
 
 
 @pytest.mark.parametrize("case", CASES, ids=lambda c: c.id)
@@ -188,10 +181,7 @@ def test_capitalization_case(case, spacy_pass):
 
 
 def test_diagnostic_report(spacy_pass, report_enabled):
-    """Optional: dump per-case feature values to docs/reports/harness/capitalization.csv.
-
-    Always runs; only writes when --report is passed.
-    """
+    """Optional: dump per-case feature values to docs/reports/harness/capitalization.csv."""
     if not report_enabled:
         pytest.skip("--report not set")
 

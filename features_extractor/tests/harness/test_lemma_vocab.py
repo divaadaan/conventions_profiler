@@ -25,9 +25,7 @@ CASES: list[FeatureCase] = [
         ),
         description="High lexical diversity — most lemmas appear once.",
         expected_ranges={
-            # High hapax count expected (most words unique)
             "vocab_unique_lemma_count": (8.0, 30.0),
-            # High type-token ratio (unique lemmas / total tokens)
             "vocab_lemma_diversity_ratio": (0.7, 1.0),
         },
     ),
@@ -37,11 +35,10 @@ CASES: list[FeatureCase] = [
         text=(
             "I run and I run and I run. "
             "I run because I run. "
-            "Running runs run."  # lemma 'run' across all variants
+            "Running runs run."
         ),
         description="High repetition — 'run' surface variants collapse to one lemma.",
         expected_ranges={
-            # Low diversity: many tokens, few unique lemmas
             "vocab_lemma_diversity_ratio": (0.0, 0.6),
         },
     ),
@@ -51,8 +48,6 @@ CASES: list[FeatureCase] = [
         text="The runner runs and ran. He has been running. She runs too.",
         description="Inflected variants of 'run' should dedupe to one lemma.",
         expected_ranges={
-            # We expect lemma diversity ratio < surface-form TTR; can't assert
-            # exact value, but should be moderate.
             "vocab_lemma_diversity_ratio": (0.4, 0.95),
         },
     ),

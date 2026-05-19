@@ -1,9 +1,10 @@
 """Error severity features implementing the global/local error framework.
-The severity tiers and weights are defaults validated against the training corpus and can be adjsuted."""
+
+Severity tiers and weights are defaults validated against the training corpus.
+"""
 
 from feature_extractor.models import Essay
 
-#Severity tier mappings
 GLOBAL_CATEGORIES = {
     "CONFUSED_WORDS",
 }
@@ -45,7 +46,6 @@ LOCAL_RULES = {
     "EN_CONTRACTION_SPELLING",
 }
 
-# Default severity weights
 SEVERITY_WEIGHTS = {
     "global": 3.0,
     "medium": 2.0,
@@ -54,7 +54,6 @@ SEVERITY_WEIGHTS = {
 
 
 def _classify_severity(match: dict) -> str:
-    """Classify a single LanguageTool match into a severity tier. deafult to medium"""
     rule_id = match.get("rule_id", "")
     category = match.get("category", "")
 
@@ -72,7 +71,6 @@ def _classify_severity(match: dict) -> str:
 
 
 def compute_error_severity_features(essay: Essay) -> dict[str, float]:
-    """Extract error severity features from LanguageTool pass results."""
     lt_data = essay.pass_results.get("languagetool", {})
     matches = lt_data.get("matches", [])
     word_count = essay.word_count
@@ -89,7 +87,6 @@ def compute_error_severity_features(essay: Essay) -> dict[str, float]:
     features["err_medium_count"] = float(severity_counts["medium"])
     features["err_local_count"] = float(severity_counts["local"])
 
-    #severity densities (per word)
     features["err_global_density"] = (
         severity_counts["global"] / word_count if word_count > 0 else 0.0
     )
@@ -100,27 +97,22 @@ def compute_error_severity_features(essay: Essay) -> dict[str, float]:
         severity_counts["local"] / word_count if word_count > 0 else 0.0
     )
 
-    #Weighted error density
-    # total error burden weighted by severity
     weighted_sum = sum(
         severity_counts[tier] * SEVERITY_WEIGHTS[tier]
         for tier in severity_counts
     )
     features["err_weighted_density"] = weighted_sum / word_count if word_count > 0 else 0.0
 
-    # global error ratio
     total_errors = len(matches)
     features["err_global_ratio"] = (
         severity_counts["global"] / total_errors if total_errors > 0 else 0.0
     )
 
-    # Error category distribution
     categories = lt_data.get("categories", {})
     for cat_name in ["GRAMMAR", "TYPOS", "PUNCTUATION", "CASING",
                      "CONFUSED_WORDS", "STYLE", "TYPOGRAPHY"]:
         features[f"err_cat_{cat_name.lower()}"] = float(categories.get(cat_name, 0))
 
-    #Confused words
     confused_count = categories.get("CONFUSED_WORDS", 0)
     features["err_confused_words_count"] = float(confused_count)
     features["err_confused_words_density"] = (

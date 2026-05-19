@@ -1,19 +1,8 @@
 """Surprisal-derived features.
 
-Consumes per-word surprisal from `essay.pass_results["surprisal"]` (produced
-by SurprisalPass) and sentence boundaries from `essay.pass_results["spacy"]`,
-and emits six essay-level aggregates:
-
-    surp_mean_per_word        Mean per-word surprisal (bits).
-    surp_perplexity           2 ** mean — paper-compatible scalar.
-    surp_p95_per_word         95th percentile per-word surprisal — tail hotspot.
-    surp_std_per_word         Std dev of per-word surprisal — variability.
-    surp_sentence_mean_max    Max of per-sentence mean surprisals — worst sentence.
-    surp_sentence_mean_std    Std dev of per-sentence mean surprisals.
-
-Words with `surprisal=None` (e.g., document-initial) are excluded from all
-aggregates. Empty essays / essays with no scored words return zeros, matching
-the convention of other feature modules.
+Consumes per-word surprisal from SurprisalPass and sentence boundaries from
+the spaCy pass; emits essay-level aggregates. Words with surprisal=None
+(e.g., document-initial) are excluded from aggregates.
 """
 
 from __future__ import annotations
@@ -75,16 +64,10 @@ def compute_surprisal_features(essay: Essay) -> dict[str, float]:
 
 
 def _per_sentence_means(essay: Essay, scored_words: list[dict]) -> list[float]:
-    """Group scored words into sentences by char-range containment.
-
-    Falls back to a single "essay-as-one-sentence" group if spaCy sentences
-    aren't available (e.g., spaCy pass was skipped).
-    """
     sentences = (
         essay.pass_results.get("spacy", {}).get("sentences") or []
     )
     if not sentences:
-        # No sentence boundaries — return one bucket.
         vals = [float(w["surprisal"]) for w in scored_words]
         return [float(np.mean(vals))] if vals else []
 
@@ -92,15 +75,14 @@ def _per_sentence_means(essay: Essay, scored_words: list[dict]) -> list[float]:
     for w in scored_words:
         w_start = w["start_char"]
         w_end = w["end_char"]
-        # Assign to first sentence whose char range contains the word's start.
         for i, sent in enumerate(sentences):
             s_start = sent.get("start_char", 0)
             s_end = sent.get("end_char", 0)
             if s_start <= w_start < s_end:
                 buckets[i].append(float(w["surprisal"]))
                 break
-            # If past all sentences (rare), drop into the last one.
         else:
+            # Past all sentence ranges (rare) — fall into the last bucket.
             if w_end <= sentences[-1].get("end_char", 0) + 1:
                 buckets[-1].append(float(w["surprisal"]))
 
